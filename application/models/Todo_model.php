@@ -13,6 +13,14 @@ class Todo_model extends CI_Model
         return $this->db->get()->result();
     }
 
+    public function getTodoPriority($priority)
+    {
+        // $this->db->where('priority', $priority);
+        // $this->db->from('todo');
+        // return $this->db->get('todo')->result();
+        return $this->db->get_where('todo', ['priority' => $priority])->result();
+    }
+
     public function delete($todo_id)
     {
         $this->db->where('id', $todo_id);

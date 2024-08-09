@@ -49,11 +49,21 @@
 
         <div class="row">
             <div class="card">
+                <br>
+                <div class="col-md-3">
+                    <b>Priority</b>
+                    <select name="priority_id" id="priority_id" class="form-control">
+                        <option value="0">Show All</option>
+                        <option value="1">One</option>
+                        <option value="2">Two</option>
+                        <option value="3">Three</option>
+                    </select>
+                </div>
                 <div class="card-header">
                     <h4 class="text-center">ToDo Table</h4>
                 </div>
                 <div class="card-body">
-                    <table class="table">
+                    <table class="table" id="todo-table">
                         <thead>
                             <tr>
                                 <th scope="col">#</th>
@@ -64,40 +74,47 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <?php
-                            $count = 0;
-                            foreach ($todo as $item) { ?>
-                                <tr>
-                                    <td><?php echo $count; ?></td>
-                                    <td><?php echo $item->name ?></td>
-                                    <td><?php echo $item->description ?></td>
-                                    <td><?php echo $item->priority ?></td>
-                                    <td><a type="button" class="btn btn-warning" onclick="fillData(`<?php echo $item->id; ?>`, `<?php echo $item->name; ?>`,`<?php echo $item->description; ?>`,`<?php echo $item->priority; ?>`,)">Edit</a></td>
-                                    <td><a type="button" href="<?php echo base_url(); ?>todo/delete/<?php echo $item->id ?>" class="btn btn-danger" onclick="return confirm('You want to delete this todo ?')">Delete</a></td>
-                                </tr>
 
-
-
-                            <?php $count++;
-                            } ?>
                         </tbody>
                     </table>
                 </div>
             </div>
         </div>
     </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script>
+        $(document).ready(function() {
+            loadTodoPriority();
+            $("#priority_id").change(function() {
+                // let a = $(this).val();
+                // console.log(a);
+                loadTodoPriority();
+            });
+        });
+
+        function loadTodoPriority() {
+            var priority = $("#priority_id").val();
+            $.ajax({
+                url: "<?php echo base_url('todo/getTodoByPriority') ?>",
+                data: "priority=" + priority,
+                success: function(data) {
+                    $("#todo-table tbody").html(data);
+                }
+            });
+        }
+
+        // EDIT
         let url = "<?php echo base_url('todo/edit/'); ?>";
         const fillData = (id, name, description, priority) => {
             let path = url + id;
-            console.log(path);
-
-            // console.log(id, name, description, priority);
+            // console.log(path);
             document.getElementById('form-todo').setAttribute('action', path);
             document.getElementById('name').value = name;
             document.getElementById('description').value = description;
             document.getElementById('priority').value = priority;
         };
+        // END EDIT
     </script>
 </body>
 
