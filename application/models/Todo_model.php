@@ -13,12 +13,12 @@ class Todo_model extends CI_Model
         return $this->db->get()->result();
     }
 
-    public function getTodoPriority($priority)
+    public function getTodoPriority($priority = null)
     {
-        // $this->db->where('priority', $priority);
-        // $this->db->from('todo');
-        // return $this->db->get('todo')->result();
-        return $this->db->get_where('todo', ['priority' => $priority])->result();
+
+        return $priority ? $this->db->get_where('todo', ['priority' => $priority])->result() :
+            // $this->db->get('todo')->result_array();  
+            $this->db->select('*')->from('todo')->get()->result();
     }
 
     public function delete($todo_id)
@@ -31,5 +31,12 @@ class Todo_model extends CI_Model
     {
         $this->db->where('id', $todo_id);
         $this->db->update('todo', $todo);
+    }
+
+    public function findByName($name)
+    {
+        $this->db->like('name', $name);
+        $this->db->from('todo');
+        return $this->db->get()->result();
     }
 }
