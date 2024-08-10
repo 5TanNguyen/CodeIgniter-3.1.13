@@ -13,6 +13,13 @@ class Todo_model extends CI_Model
         return $this->db->get()->result();
     }
 
+    public function getAllExcel()
+    {
+        $this->db->select('*');
+        $this->db->from('todo');
+        return $this->db->get()->result_array();
+    }
+
     public function getTodoPriority($priority = null)
     {
         return $priority ? $this->db->get_where('todo', ['priority' => $priority])->result() :

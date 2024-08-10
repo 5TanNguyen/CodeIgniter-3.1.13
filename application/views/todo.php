@@ -197,38 +197,42 @@
         </div>
 
         <div class="row">
-            <div class="">
-                <br>
-                <div class="col-md-3">
-                    <b>Priority</b>
-                    <select name="priority_id" id="priority_id" class="form-control">
-                        <option value="0">Show All</option>
-                        <option value="1">One</option>
-                        <option value="2">Two</option>
-                        <option value="3">Three</option>
-                    </select>
-                </div>
-                <div class="card-header">
-                    <h4 class="text-center">ToDo Table</h4>
-                </div>
-                <div class="card-body">
-                    <table class="table" id="todo-table">
-                        <thead>
-                            <tr>
-                                <th scope="col">#</th>
-                                <th scope="col">Image</th>
-                                <th scope="col">Name</th>
-                                <th scope="col">Description</th>
-                                <th scope="col">Priority</th>
-                                <th scope="col" colspan="2">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-
-                        </tbody>
-                    </table>
-                </div>
+            <!-- <div class="row"> -->
+            <br>
+            <div class="col-md-3">
+                <b>Priority</b>
+                <select name="priority_id" id="priority_id" class="form-control">
+                    <option value="0">Show All</option>
+                    <option value="1">One</option>
+                    <option value="2">Two</option>
+                    <option value="3">Three</option>
+                </select>
             </div>
+            <div class="col-md-3">
+                <b>Export Excel</b>
+                <a class="btn btn-primary" href="<?php echo base_url('todo/excel'); ?>">===></a>
+            </div>
+            <div class="card-header">
+                <h4 class="text-center">ToDo Table</h4>
+            </div>
+            <div class="card-body">
+                <table class="table" id="todo-table">
+                    <thead>
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">Image</th>
+                            <th scope="col">Name</th>
+                            <th scope="col">Description</th>
+                            <th scope="col">Priority</th>
+                            <th scope="col" colspan="2">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+
+                    </tbody>
+                </table>
+            </div>
+            <!-- </div> -->
         </div>
     </div>
 

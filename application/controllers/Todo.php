@@ -1,6 +1,11 @@
 <?php
 defined('BASEPATH') or exit('No direct script access allowed');
 
+require 'vendor/autoload.php';
+
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+
 class Todo extends CI_Controller
 {
     public function __construct()
@@ -21,6 +26,43 @@ class Todo extends CI_Controller
         if (!isset($_SESSION['email'])) {
             $this->load->view('login');
         }
+
+        $this->load->view('todo');
+    }
+
+    public function excel()
+    {
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+
+        foreach (range('A', 'F') as $columID) {
+            $spreadsheet->getActiveSheet()->getColumnDimension($columID)->setAutoSize(true);
+        }
+        $sheet->setCellValue('A1', 'ID');
+        $sheet->setCellValue('B1', 'UserID');
+        $sheet->setCellValue('C1', 'Name');
+        $sheet->setCellValue('D1', 'Description');
+        $sheet->setCellValue('E1', 'Priority');
+
+        $user_id = $_SESSION['user_id'];
+        $x = 2;
+        $todos = $this->Todo_model->getAllExcel();
+
+        foreach ($todos as $row) {
+            $sheet->setCellValue('A' . $x, $row['id']);
+            $sheet->setCellValue('B' . $x, $row['user_id']);
+            $sheet->setCellValue('C' . $x, $row['name']);
+            $sheet->setCellValue('D' . $x, $row['description']);
+            $sheet->setCellValue('E' . $x, $row['priority']);
+            $x++;
+        }
+
+        $writer = new Xlsx($spreadsheet);
+        $fileName = 'todo_list.xlsx';
+
+        $date = date('Y-m-d H:i:s');
+        $path = 'exports/' . $fileName;
+        $writer->save($path);
 
         $this->load->view('todo');
     }
