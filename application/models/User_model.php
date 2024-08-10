@@ -39,4 +39,29 @@ class User_model extends CI_Model
         $this->db->from('users');
         return $this->db->get()->result();
     }
+
+    // API
+    public function registerUser($user)
+    {
+        $this->db->insert('users', $user);
+    }
+
+    public function checkLogin($data)
+    {
+        $this->db->where($data);
+        $query = $this->db->get('users');
+        if ($query->num_rows() == 1) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public function getProfile($userId)
+    {
+        $this->db->select('*');
+        $this->db->where(['id' => $userId]);
+        $query = $this->db->get('users');
+        return $query->row();
+    }
 }
