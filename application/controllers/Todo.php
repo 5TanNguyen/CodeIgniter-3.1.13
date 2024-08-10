@@ -16,7 +16,7 @@ class Todo extends CI_Controller
     public function index()
     {
         // $todo['todo'] = $this->Todo_model->getAll();
-        // $this->load->view('todo', $todo);
+        // $this->load->view('todo', $todo); // 7.4.33
 
         if (!isset($_SESSION['email'])) {
             $this->load->view('login');
