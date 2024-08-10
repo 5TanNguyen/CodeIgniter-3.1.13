@@ -49,5 +49,42 @@ class Auth_Controller extends RestApi_Controller
         }
     }
 
-    public function login() {}
+    public function login()
+    {
+        $email = $this->input->post('email');
+        $password = $this->input->post('password');
+
+        $this->form_validation->set_rules('email', 'Email', 'required');
+        $this->form_validation->set_rules('password', 'Password', 'required');
+
+        if ($this->form_validation->run()) {
+            $data = array('email' => $email, 'password' => sha1($password));
+            $loginStatus = $this->User_model->checkLogin($data);
+            if ($loginStatus != false) {
+                $userId = $loginStatus->id;
+                $bearerToken = $this->api_auth->generateToken($userId);
+
+                $responseData = array(
+                    'status' => true,
+                    'message' => 'Successfully Loggoed In',
+                    'token' => $bearerToken
+                );
+                return $this->response($responseData, 200);
+            } else {
+                $responseData = array(
+                    'status' => false,
+                    'message' => 'Invalid Credentials',
+                    'data' => []
+                );
+                return $this->response($responseData);
+            }
+        } else {
+            $responseData = array(
+                'status' => false,
+                'message' => 'Email and password are required!!!',
+                'data' => []
+            );
+            return $this->response($responseData);
+        }
+    }
 }
