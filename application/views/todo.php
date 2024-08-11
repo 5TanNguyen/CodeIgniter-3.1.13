@@ -210,6 +210,24 @@
             </div>
             <div class="col-md-3">
                 <b>Export Excel</b>
+                <?php echo form_open_multipart('todo/import_excel', ['class' => 'form-control']); ?>
+                <input type="file" name="upload_excel" required class="form-control">
+                <input type="submit" name="submit" value="Submit" class="btn btn-primary">
+
+                <?php if ($this->session->flashdata('success')) { ?>
+                    <p><?php echo $this->session->flashdata('success'); ?></p>
+                <?php } ?>
+
+                <?php if ($this->session->flashdata('error')) { ?>
+                    <p><?php echo $this->session->flashdata('error'); ?></p>
+                <?php } ?>
+
+                <?php echo form_close(); ?>
+            </div>
+
+            <div class="col-md-3">
+                <b>Export Excel</b>
+                <br>
                 <a class="btn btn-primary" href="<?php echo base_url('todo/excel'); ?>">===></a>
             </div>
             <div class="card-header">

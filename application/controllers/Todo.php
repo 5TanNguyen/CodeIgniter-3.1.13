@@ -30,6 +30,66 @@ class Todo extends CI_Controller
         $this->load->view('todo');
     }
 
+    public function import_excel()
+    {
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            $upload_status = $this->uploadDoc();
+            if ($upload_status != false) {
+                $inputFileName = 'assets/uploads/imports/' . $upload_status;
+
+                $inputTileType = \PhpOffice\PhpSpreadsheet\IOFactory::identify($inputFileName);
+                $reader = \PhpOffice\PhpSpreadsheet\IOFactory::createReader($inputTileType);
+                $spreadsheet = $reader->load($inputFileName);
+                $sheet = $spreadsheet->getSheet(0);
+
+                $count_Rows = 0;
+
+                foreach ($sheet->getRowIterator() as $row) {
+                    $user_id = $spreadsheet->getActiveSheet()->getCell('A' . $row->getRowIndex());
+                    $name = $spreadsheet->getActiveSheet()->getCell('B' . $row->getRowIndex());
+                    $description = $spreadsheet->getActiveSheet()->getCell('C' . $row->getRowIndex());
+                    $priority = $spreadsheet->getActiveSheet()->getCell('D' . $row->getRowIndex());
+
+                    $data = array(
+                        'user_id' => $user_id,
+                        'name' => $name,
+                        'description' => $description,
+                        'priority' => $priority,
+                    );
+
+                    $this->Todo_model->add($data);
+                }
+                $this->session->set_flashdata('success', 'Successfully Data Imported!!!');
+                redirect('todo');
+            } else {
+                $this->session->set_flashdata('error', 'File is not uploaded!!');
+                redirect('todo');
+            }
+        } else {
+            $this->load->view('todo');
+        }
+    }
+
+    public function uploadDoc()
+    {
+        $uploadPath = 'assets/uploads/imports/';
+        if (!is_dir($uploadPath)) {
+            mkdir($uploadPath, 0777, TRUE); // FOR CREATING DIRECTORY IF ITS NOT EXIST
+        }
+
+        $config['upload_path'] = $uploadPath;
+        $config['allowed_types'] = 'csv|xlsx|xls';
+        $config['max-size'] = 100000;
+        $this->load->library('upload', $config);
+        $this->upload->initialize($config);
+        if ($this->upload->do_upload('upload_excel')) {
+            $fileData = $this->upload->data();
+            return $fileData['file_name'];
+        } else {
+            return false;
+        }
+    }
+
     public function excel()
     {
         $spreadsheet = new Spreadsheet();
