@@ -84,7 +84,7 @@
                     <div class="containerr">
                         <?php echo form_open_multipart("todo/userUpdate", ['class' => 'row']) ?>
                         <div class="form-group col-sm-12 d-flex justify-content-center">
-                            <img src="<?php echo base_url('todo/getImage?image=') . $_SESSION['image']; ?>" alt="" width="100" height="100">
+                            <img src="<?php echo base_url('todo/getImage?image=') . $_SESSION['user_image']; ?>" alt="" width="100" height="100">
                             <!-- <input class="form-control" type="file" name="image" id=""> -->
                             <br>
                         </div>
@@ -252,6 +252,22 @@
             </div>
             <!-- </div> -->
         </div>
+    </div>
+
+    <style>
+        .scrollable-section {
+            height: 600px;
+            overflow-y: scroll;
+            background-color: #fff;
+        }
+
+        .bg-color {
+            background-color: #dec018;
+            padding: 2px;
+            border-radius: 5px;
+        }
+    </style>
+    </section>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>

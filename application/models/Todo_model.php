@@ -44,4 +44,13 @@ class Todo_model extends CI_Model
         $this->db->from('todo');
         return $this->db->get()->result();
     }
+
+    public function getAllTodo($user_id)
+    {
+        $this->db->select('*');
+        $this->db->from('users');
+        $this->db->where('users.id', $user_id);
+        $this->db->join('todo', 'todo.user_id = users.id', 'left');
+        return $this->db->get()->result();
+    }
 }

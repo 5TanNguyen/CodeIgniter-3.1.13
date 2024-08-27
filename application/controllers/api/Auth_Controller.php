@@ -7,6 +7,7 @@ class Auth_Controller extends RestApi_Controller
         parent::__construct();
         $this->load->library('api_auth');
         $this->load->model('User_model');
+        $this->load->library('session');
     }
 
     function register()
@@ -63,6 +64,8 @@ class Auth_Controller extends RestApi_Controller
             if ($loginStatus != false) {
                 $userId = $loginStatus->id;
                 $bearerToken = $this->api_auth->generateToken($userId);
+
+                $this->session->set_userdata('user_id', $userId);
 
                 $responseData = array(
                     'status' => true,

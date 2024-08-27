@@ -1,0 +1,101 @@
+===CONTROLLER
+public function exportExcel()
+	{
+		$this->load->library('Pxl');
+		$objPHPExcel = new PHPExcel();
+
+		// Đặt các thuộc tính tài liệu
+		$objPHPExcel->getProperties()
+			->setCreator("Export Excel bằng PHPExcel")
+			->setTitle("Ví dụ xuất Excel bằng PHPExcel")
+			->setDescription("Mô tả ngắn về nội dung của file");
+
+		// Dữ liệu tiêu đề
+		$headingExcel = ['ID', 'TITLE', 'DESCRIPTION', 'ATTACHMENT', 'STATUS'];
+
+		// Đặt tiêu đề vào dòng đầu tiên
+		$objPHPExcel->setActiveSheetIndex(0);
+		$this->pxl->fillExcelSheet($objPHPExcel->getActiveSheet(), $headingExcel, 1);
+
+		// Lấy dữ liệu và đặt vào các dòng tiếp theo
+		$keySearch = $this->input->get('searchWork');
+		$works = $this->Work_model->getWork($keySearch);
+
+		$rowIndex = 2;
+		foreach ($works as $work) {
+			$this->pxl->fillExcelSheet($objPHPExcel->getActiveSheet(), $work, $rowIndex);
+			$rowIndex++;
+		}
+
+		// Đặt tên worksheet
+		$objPHPExcel->getActiveSheet()->setTitle('Name Sheet');
+
+		// Đặt chỉ số trang tính hoạt động là trang đầu tiên
+		$objPHPExcel->setActiveSheetIndex(0);
+
+		// Lưu file Excel
+		$filename = 'simple.xlsx';
+		header('Content-Type: application/vnd.ms-excel');
+		header('Content-Disposition: attachment;filename="' . $filename . '"');
+		header('Cache-Control: max-age=0');
+
+		$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
+		$objWriter->save('php://output');
+	}
+	public function import_excel()
+	{ 
+		if (isset($_FILES['fileExcel']['name']) && $_FILES['fileExcel']['name'] != '') {
+			// Lấy đường dẫn của file
+			$path = $_FILES['fileExcel']['tmp_name'];
+
+			$this->load->library('Pxl');
+			$objPHPExcel = new PHPExcel();
+
+			// Kiểm tra định dạng file
+			$fileType = PHPExcel_IOFactory::identify($path);
+			$allowedTypes = ['Excel5', 'Excel2007', 'CSV'];
+			if (!in_array($fileType, $allowedTypes)) {
+				echo "File không đúng định dạng!";
+				return;
+			}
+
+			// Tạo đối tượng PHPExcel
+			$objPHPExcel = PHPExcel_IOFactory::load($path);
+
+			// Lấy dữ liệu từ trang tính đầu tiên
+			$sheet = $objPHPExcel->getActiveSheet();
+			$highestRow = $sheet->getHighestRow();
+			$highestColumn = $sheet->getHighestColumn();
+			// Lặp qua từng hàng để lấy dữ liệu
+			for ($row = 2; $row <= $highestRow; $row++) { // Bắt đầu từ hàng 2 nếu hàng 1 là tiêu đề
+				$rowData = $sheet->rangeToArray('A' . $row . ':' . $highestColumn . $row, NULL, TRUE, FALSE);
+
+				// Chuẩn bị dữ liệu cho cơ sở dữ liệu
+				$data = array(
+					'title' => $rowData[0][1],
+					'description' => $rowData[0][2],
+					'attachment' => $rowData[0][3], //Chú ý khi import file là hình ảnh
+					'status' => $rowData[0][4],
+				);
+				// Chèn dữ liệu vào bảng trong cơ sở dữ liệu
+				$this->Work_model->addWork($data);
+			}
+
+			echo "Import dữ liệu thành công!";
+		} else {
+			echo "Vui lòng chọn file để upload!";
+		}
+	}
+===LIBRARIES/Pxl.php
+// Tạo hàm chung để điền dữ liệu vào Excel
+  function fillExcelSheet($sheet, $data, $startRow = 1)
+  {
+    $char = 'A';
+    foreach ($data as $key => $value) {
+      $cell = $char . $startRow;
+      $sheet->setCellValue($cell, $value);
+      $sheet->getColumnDimension($char)->setAutoSize(true);
+      $sheet->getStyle($cell)->getFont()->setBold($startRow === 1); // In đậm nếu là hàng đầu tiên (tiêu đề)
+      $char++;
+    }
+  }

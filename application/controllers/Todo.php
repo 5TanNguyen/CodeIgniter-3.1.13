@@ -16,6 +16,7 @@ class Todo extends CI_Controller
         $this->load->model('User_model');
         $this->load->library('ImageEncryption');
         $this->load->library('session');
+        $this->load->model('Calendar_model');
     }
 
     public function index()
@@ -28,6 +29,24 @@ class Todo extends CI_Controller
         }
 
         $this->load->view('todo');
+    }
+
+    public function calendar()
+    {
+        $calendar['calendar'] = $this->Calendar_model->getAll();
+
+        $this->load->view('calendar', $calendar);
+    }
+
+    public function calendar_add()
+    {
+        $calendar['title'] = $this->input->post('title');
+        $calendar['description'] = $this->input->post('description');
+        $calendar['start'] = $this->input->post('start');
+        $calendar['end'] = $this->input->post('end');
+
+        $this->Calendar_model->add($calendar);
+        redirect('calendar');
     }
 
     public function import_excel()
@@ -145,7 +164,7 @@ class Todo extends CI_Controller
         $_SESSION['email'] = $user[0]->email;
         $_SESSION['firstname'] = $user[0]->firstname;
         $_SESSION['lastname'] = $user[0]->lastname;
-        $_SESSION['image'] = $user[0]->image;
+        $_SESSION['user_image'] = $user[0]->user_image;
 
         $this->load->view('todo');
     }
@@ -164,6 +183,7 @@ class Todo extends CI_Controller
     public function list()
     {
         $todo['todo'] = $this->Todo_model->getAll();
+
         $this->load->view('todo', $todo);
     }
 
@@ -481,7 +501,7 @@ class Todo extends CI_Controller
 
                 $data['path'] = $config['upload_path'] . $file_name_enc;
 
-                $user['image'] = $config['upload_path'] . $file_name_enc;
+                $user['user_image'] = $config['upload_path'] . $file_name_enc;
             }
         }
         $user['firstname'] = $this->input->post('firstname');
@@ -490,7 +510,7 @@ class Todo extends CI_Controller
 
         $this->User_model->edit($user, $user_id);
 
-        $_SESSION['image'] = $config['upload_path'] . $file_name_enc;
+        $_SESSION['user_image'] = $config['upload_path'] . $file_name_enc;
         $_SESSION['lastname'] = $this->input->post('lastname');
         $_SESSION['firstname'] = $this->input->post('firstname');
 
