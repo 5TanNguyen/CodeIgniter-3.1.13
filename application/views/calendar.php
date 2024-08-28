@@ -12,9 +12,35 @@ https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js
         document.addEventListener('DOMContentLoaded', function() {
             var calendarEl = document.getElementById('calendar');
             <?php
+            ////////////////////////////////////////////////////////////
+            // Dữ liệu mẫu cho các sự kiện
+            $events = [
+                ['id' => '1', 'title' => 'Đi làm', 'description' => 'Phòng CNTT', 'start' => 'Tuesday'],
+                ['id' => '2', 'title' => 'Đi làm', 'description' => 'Phòng CNTT', 'start' => 'Monday'],
+                ['id' => '4', 'title' => 'Cafe Cún', 'description' => 'Quán DB', 'start' => 'Wednesday']
+            ];
+
+            // Khởi tạo mảng trống để chứa các sự kiện cho FullCalendar
+            $calendarr = array();
+
+            // Sử dụng vòng lặp for để điền dữ liệu vào mảng
+            for ($i = 0; $i < count($events); $i++) {
+                $calendarr[] = [
+                    'id' => $events[$i]['id'],
+                    'title' => $events[$i]['title'],
+                    'description' => $events[$i]['description'],
+                    'start' => (date('Y-m-d', strtotime($events[$i]['start'])) > date('Y-m-d')) ? date('Y-m-d', strtotime('-7 days', strtotime(date('Y-m-d', strtotime($events[$i]['start']))))) : date('Y-m-d', strtotime($events[$i]['start'])),
+                    // 'end' => $events[$i]['end']
+                ];
+            }
+
+            ////////////////////////////////////////////////////////////
+
             // Chuyển đổi mảng PHP thành JSON
-            $eventsJson = json_encode($calendar);
+            // $eventsJson = json_encode($calendar);
+            $eventsJson = json_encode($calendarr);
             ?>
+
             // Chuyển mảng events từ PHP sang JavaScript
             var eventsFromPHP = <?php echo $eventsJson; ?>;
 
@@ -138,7 +164,7 @@ https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js
             }
         }
 
-        .modal-content {
+        .modal-contentt {
             background: linear-gradient(135deg, #6dd5ed, #2193b0);
             margin: 5% auto;
             padding: 30px;
@@ -264,12 +290,14 @@ https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js
 </head>
 
 <body>
+
+    <?php $this->load->view('nav'); ?>
     <!-- Button to open the modal -->
-    <button class="open-modal-btn"><i>Add Event</i></button>
+    <button class="open-modal-btn"><i>Add Event <?php echo date('Y-m-d'); ?></i></button>
 
     <!-- The Modal -->
     <div id="calendarModal" class="modal">
-        <div class="modal-content">
+        <div class="modal-contentt">
             <?php echo form_open_multipart('todo/calendar_add', ['id' => 'calendarForm']); ?>
             <div class="modal-header">
                 <h2>Add Calendar Event</h2>

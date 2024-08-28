@@ -26,9 +26,9 @@ class Todo extends CI_Controller
 
         if (!isset($_SESSION['email'])) {
             $this->load->view('login');
+        } else {
+            $this->load->view('todo');
         }
-
-        $this->load->view('todo');
     }
 
     public function calendar()

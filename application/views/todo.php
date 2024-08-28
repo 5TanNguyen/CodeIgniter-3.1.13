@@ -9,8 +9,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Todo Test</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
 </head>
 
 <style>
@@ -75,89 +73,9 @@
 </style>
 
 <body>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <div class="overplay" id="divOne">
-            <div class="wrapper">
-                <h2 class="text-center">Personal Information</h2>
-                <a href="#" class="close">&times;</a>
-                <div class="content">
-                    <div class="containerr">
-                        <?php echo form_open_multipart("todo/userUpdate", ['class' => 'row']) ?>
-                        <div class="form-group col-sm-12 d-flex justify-content-center">
-                            <img src="<?php echo base_url('todo/getImage?image=') . $_SESSION['user_image']; ?>" alt="" width="100" height="100">
-                            <!-- <input class="form-control" type="file" name="image" id=""> -->
-                            <br>
-                        </div>
 
-                        <div class="form-group col-sm-12 d-flex justify-content-center">
-                            <input class="form-control" type="file" name="image" id="">
-                            <br>
-                        </div>
+    <?php $this->load->view('nav'); ?>
 
-                        <div class="form-group col-sm-12">
-                            <br>
-                            <label for="">Email</label>
-                            <input class="form-control" name="email" readonly type="text" value="<?php echo $_SESSION['email']; ?>">
-                            <br>
-                        </div>
-                        <div class="form-group col-sm-6">
-                            <label for="">Firstname</label>
-                            <input class="form-control" name="firstname" type="text" value="<?php echo $_SESSION['firstname']; ?>">
-                        </div>
-
-                        <div class="form-group col-sm-6">
-                            <label for="">Lastname</label>
-                            <input class="form-control" name="lastname" type="text" value="<?php echo $_SESSION['lastname']; ?>">
-                        </div>
-                        <div class="form-group col-sm-12">
-                            <br>
-                            <input type="submit" class="btn btn-outline-danger" value="Submit" style="width: 100%;">
-                        </div>
-                        <?php echo form_close(); ?>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="container-fluid">
-            <a class="navbar-brand" href="#">Navbar</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                    <li class="nav-item dropdown">
-                        <a style="font-weight: bold" class="nav-link dropdown-toggle" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <?php if (isset($_SESSION['email'])) {
-                            ?>
-                                <?php echo $_SESSION['email']; ?>
-                            <?php } else { ?>
-                                Bruh
-                            <?php } ?>
-
-                        </a>
-                        <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                            <li><a class="dropdown-item" href="#divOne">Profile</a>
-                            </li>
-                            <li><a class="dropdown-item" href="<?php echo base_url('todo/logout'); ?>">Log out</a></li>
-                            <li>
-                                <hr class="dropdown-divider">
-                            </li>
-                            <!-- <li><a class="dropdown-item" href="#">Something else here</a></li> -->
-                        </ul>
-                    </li>
-                    <!--
-                    <li class="nav-item">
-                        <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Disabled</a>
-                    </li> -->
-                </ul>
-
-                <?php echo form_open_multipart('todo/findByName', ['class' => 'd-flex']); ?>
-                <input name="name" class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
-                <button class="btn btn-outline-success" type="submit">Search</button>
-                <?php echo form_close(); ?>
-            </div>
-        </div>
-    </nav>
     <div class="container">
         <br>
         <div class="row">
@@ -209,7 +127,7 @@
                 </select>
             </div>
             <div class="col-md-3">
-                <b>Export Excel</b>
+                <b>Import Excel</b>
                 <?php echo form_open_multipart('todo/import_excel', ['class' => 'form-control']); ?>
                 <input type="file" name="upload_excel" required class="form-control">
                 <input type="submit" name="submit" value="Submit" class="btn btn-primary">
@@ -303,6 +221,15 @@
             document.getElementById('priority').value = priority;
         };
         // END EDIT
+
+
+        // Close modal if user clicks outside of modal content
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                closeModalSmoothly();
+                errorMessage.style.display = "none"; // Hide error message if it's visible
+            }
+        }
     </script>
 </body>
 
