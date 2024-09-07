@@ -160,7 +160,9 @@
                             <th scope="col">Name</th>
                             <th scope="col">Description</th>
                             <th scope="col">Priority</th>
+                            <th scope="col">Test</th>
                             <th scope="col" colspan="2">Action</th>
+                            <th colspan="10"></th>
                         </tr>
                     </thead>
                     <tbody>

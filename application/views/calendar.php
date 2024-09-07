@@ -37,8 +37,8 @@ https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js
             ////////////////////////////////////////////////////////////
 
             // Chuyển đổi mảng PHP thành JSON
-            // $eventsJson = json_encode($calendar);
-            $eventsJson = json_encode($calendarr);
+            $eventsJson = json_encode($calendar);
+            // $eventsJson = json_encode($calendarr);
             ?>
 
             // Chuyển mảng events từ PHP sang JavaScript
@@ -46,7 +46,7 @@ https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js
 
             var calendar = new FullCalendar.Calendar(calendarEl, {
                 headerToolbar: {
-                    left: 'prev,next today',
+                    left: 'prevYear,prev,next,nextYear today',
                     center: 'title',
                     right: 'dayGridMonth,timeGridWeek,timeGridDay,listMonth'
                 },
@@ -66,45 +66,6 @@ https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js
                 //         start: '2023-01-13T11:00:00',
                 //         constraint: 'availableForMeeting', // defined below
                 //         color: '#257e4a'
-                //     },
-                //     {
-                //         title: 'Conference',
-                //         start: '2023-01-18',
-                //         end: '2023-01-20'
-                //     },
-                //     {
-                //         title: 'Party',
-                //         start: '2023-01-29T20:00:00'
-                //     },
-
-                //     // areas where "Meeting" must be dropped
-                //     {
-                //         groupId: 'availableForMeeting',
-                //         start: '2023-01-11T10:00:00',
-                //         end: '2023-01-11T16:00:00',
-                //         display: 'background'
-                //     },
-                //     {
-                //         groupId: 'availableForMeeting',
-                //         start: '2023-01-13T10:00:00',
-                //         end: '2023-01-13T16:00:00',
-                //         display: 'background'
-                //     },
-
-                //     // red areas where no events can be dropped
-                //     {
-                //         start: '2023-01-24',
-                //         end: '2023-01-28',
-                //         overlap: false,
-                //         display: 'background',
-                //         color: '#ff9f89'
-                //     },
-                //     {
-                //         start: '2023-01-06',
-                //         end: '2023-01-08',
-                //         overlap: false,
-                //         display: 'background',
-                //         color: '#ff9f89'
                 //     }
                 // ]
             });
@@ -285,6 +246,37 @@ https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js
         /* Add transition for fading out */
         .modal.fade-out {
             animation: fadeOut 0.4s forwards;
+        }
+
+
+        .fc .fc-button-group>.fc-button {
+            background: #4b69c1;
+        }
+
+        .fc .fc-button-primary:not(:disabled).fc-button-active,
+        .fc .fc-button-primary:not(:disabled):active {
+            background-color: rgba(255, 193, 7, 1);
+        }
+
+        .fc .fc-button-primary {
+            background-color: #DC143C;
+            border: none;
+        }
+
+        .fc .fc-button-primary:disabled {
+            background-color: white;
+            color: black;
+        }
+
+        .fc-direction-ltr .fc-daygrid-event.fc-event-end,
+        .fc-direction-rtl .fc-daygrid-event.fc-event-start {
+            margin-right: 2px;
+            background-color: aqua;
+        }
+
+        .fc .fc-toolbar-title {
+            font-family: 'Roboto', sans-serif;
+            font-weight: 500;
         }
     </style>
 </head>

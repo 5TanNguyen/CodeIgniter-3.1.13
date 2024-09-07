@@ -52,3 +52,5 @@ defined('BASEPATH') or exit('No direct script access allowed');
 $route['default_controller'] = 'todo';
 $route['404_override'] = '';
 $route['translate_uri_dashes'] = FALSE;
+$route['send-email'] = 'EmailController/index';
+$route['send-email-submit'] = 'EmailController/send_email';

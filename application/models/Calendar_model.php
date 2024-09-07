@@ -3,14 +3,14 @@ class Calendar_model extends CI_Model
 {
     public function add($calendar)
     {
-        $this->db->insert('calendar', $calendar);
+        $this->db->insert('calendars', $calendar);
     }
 
     public function getAll()
     {
         // $this->db->select('title, start, end');
         $this->db->select('*');
-        $this->db->from('calendar');
+        $this->db->from('calendars');
         return $this->db->get()->result_array();
     }
 

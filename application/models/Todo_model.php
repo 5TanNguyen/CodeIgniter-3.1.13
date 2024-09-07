@@ -22,8 +22,8 @@ class Todo_model extends CI_Model
 
     public function getTodoPriority($priority = null)
     {
-        return $priority ? $this->db->get_where('todo', ['priority' => $priority])->result() :
-            $this->db->select('*')->from('todo')->get()->result();
+        return $priority ? $this->db->from('todo')->select('*')->where('priority', $priority)->join('todo_meta', 'todo_meta.todo_id = todo.id', 'left')->get()->result() :
+            $this->db->select('*')->from('todo')->join('todo_meta', 'todo_meta.todo_id = todo.id', 'left')->get()->result_array();
     }
 
     public function delete($todo_id)

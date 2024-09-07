@@ -17,6 +17,7 @@ class Todo extends CI_Controller
         $this->load->library('ImageEncryption');
         $this->load->library('session');
         $this->load->model('Calendar_model');
+        $this->load->helper('base_helper');
     }
 
     public function index()
@@ -519,51 +520,77 @@ class Todo extends CI_Controller
 
     public function getTodoByPriority()
     {
-        $name = $this->input->post('name');
+        // $name = $this->input->post('name');
         $priority_id = $_GET['priority'];
-
-        // if (!empty($name)) {
-        //     $todo = $this->Todo_model->findByName($name);
-        // } else {
-        //     $todo = $this->Todo_model->getTodoPriority($priority_id);
-        // }
         $todo = $this->Todo_model->getTodoPriority($priority_id);
 
-        if (!empty($todo)) {
+        $todo_check = [];
+        foreach ($todo as $key => $item) {
+            $temp_id = $item['id'];
+            if (!isset($todo_check[$temp_id])) {
+                $todo_check[$temp_id] = [
+                    'id' => $item['id'],
+                    'image' => $item['image'],
+                    'name' => $item['name'],
+                    'description' => $item['description'],
+                    'priority' => $item['priority']
+                ];
+            }
+
+            $todo_check[$temp_id]['fields'][] = [
+                'fieldname' => $item['fieldname'],
+                'fieldvalue' => $item['fieldvalue']
+            ];
+        }
+
+        if (!empty($todo_check)) {
             $no = 1;
-            foreach ($todo as $item): ?>
+            foreach ($todo_check as $item): ?>
                 <tr>
                     <td><?php echo $no++;
                         ?></td>
-                    <td><img src="<?php echo base_url('todo/getImage?image=') . $item->image; ?>" alt="" width="100" height="100"></td>
-                    <td><?php echo $item->name
+                    <td><img src="<?php echo base_url('todo/getImage?image=') . $item['image']; ?>" alt="" width="100" height="100"></td>
+                    <td><?php echo $item['name'] //$item->name
                         ?></td>
-                    <td><?php echo $item->description
+                    <td><?php echo $item['description'] //$item->description
                         ?></td>
-                    <td><?php echo $item->priority
+                    <td><?php echo $item['priority'] //$item->priority
                         ?></td>
-                    <td><a type="button" class="btn btn-warning" onclick="fillData(`<?php echo $item->id;
-                                                                                    ?>`, `<?php echo $item->name; ?>`,`<?php echo $item->description; ?>`,`<?php echo $item->priority; ?>`,)">Edit</a></td>
-                    <td><a type="button" href="<?php echo base_url();
-                                                ?>todo/delete/<?php echo $item->id
-                                                                ?>" class="btn btn-danger" onclick="return confirm('You want to delete this todo ?')">Delete</a></td>
+
+                    <?php foreach ($item['fields'] as $val): ?>
+                        <td>
+                            <?= $val['fieldname'] ?>
+                        </td>
+                    <?php endforeach; ?>
+
+                    <td><a type="button" class="btn btn-warning" onclick="fillData(`<?php echo $item['id'];
+                                                                                    ?>`, `<?php echo $item['name']; ?>`,`<?php echo $item['description']; ?>`,`<?php echo $item['priority']; ?>`,)">Edit</a></td>
+                    <td><a
+                            type="button"
+                            href="<?php echo base_url(); ?>todo/delete/<?php echo $item['id'] ?>"
+                            class="btn btn-danger"
+                            onclick="return confirm('You want to delete this todo ?')">
+                            Delete
+                        </a>
+                    </td>
                 </tr>
-            <?php endforeach ?> <?php
-                            } else {
-                                ?>
+            <?php endforeach ?>
+        <?php
+        } else {
+        ?>
             <tr>
                 <td>There is do data</td>
             </tr>
             <?php
-                            }
-                        }
+        }
+    }
 
-                        public function loadTodo()
-                        {
-                            $todo = $this->Todo_model->getAll();
-                            if (!empty($todo)) {
-                                $no = 1;
-                                foreach ($todo as $item): ?>
+    public function loadTodo()
+    {
+        $todo = $this->Todo_model->getAll();
+        if (!empty($todo)) {
+            $no = 1;
+            foreach ($todo as $item): ?>
                 <tr>
                     <td><?php echo $no;
                         ?></td>
@@ -575,17 +602,23 @@ class Todo extends CI_Controller
                         ?></td>
                     <td><a type="button" class="btn btn-warning" onclick="fillData(`<?php echo $item->id;
                                                                                     ?>`, `<?php echo $item->name; ?>`,`<?php echo $item->description; ?>`,`<?php echo $item->priority; ?>`,)">Edit</a></td>
-                    <td><a type="button" href="<?php echo base_url();
-                                                ?>todo/delete/<?php echo $item->id
-                                                                ?>" class="btn btn-danger" onclick="return confirm('You want to delete this todo ?')">Delete</a></td>
+                    <td><a
+                            type="button"
+                            href="<?php echo base_url(); ?>todo/delete/<?php echo $item->id ?>"
+                            class="btn btn-danger"
+                            onclick="return confirm('You want to delete this todo ?')">
+                            Delete
+                        </a>
+                    </td>
                 </tr>
-            <?php endforeach ?> <?php
-                            } else {
-                                ?>
+            <?php endforeach ?>
+        <?php
+        } else {
+        ?>
             <tr>
                 <td>There is do data</td>
             </tr>
 <?php
-                            }
-                        }
-                    }
+        }
+    }
+}

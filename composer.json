@@ -12,7 +12,10 @@
 	},
 	"require": {
 		"php": ">=5.3.7",
-		"phpoffice/phpspreadsheet": "*"
+		"phpoffice/phpspreadsheet": "*",
+		"sendgrid/sendgrid": "*",
+		"google/apiclient": "*",
+		"symfony/mailer": "*"
 	},
 	"suggest": {
 		"paragonie/random_compat": "Provides better randomness in PHP 5.x"
