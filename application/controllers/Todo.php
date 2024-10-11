@@ -18,6 +18,15 @@ class Todo extends CI_Controller
         $this->load->library('session');
         $this->load->model('Calendar_model');
         $this->load->helper('base_helper');
+
+        // Update Code
+
+        if (class_exists('Format')) {
+            $this->format = new Format();
+        } else {
+            $this->load->library('Format', NULL, 'libraryFormat');
+            $this->format = $this->libraryFormat;
+        }
     }
 
     public function index()
@@ -557,12 +566,6 @@ class Todo extends CI_Controller
                     <td><?php echo $item['priority'] //$item->priority
                         ?></td>
 
-                    <?php foreach ($item['fields'] as $val): ?>
-                        <td>
-                            <?= $val['fieldname'] ?>
-                        </td>
-                    <?php endforeach; ?>
-
                     <td><a type="button" class="btn btn-warning" onclick="fillData(`<?php echo $item['id'];
                                                                                     ?>`, `<?php echo $item['name']; ?>`,`<?php echo $item['description']; ?>`,`<?php echo $item['priority']; ?>`,)">Edit</a></td>
                     <td><a
@@ -573,6 +576,14 @@ class Todo extends CI_Controller
                             Delete
                         </a>
                     </td>
+
+                    <?php foreach ($item['fields'] as $val): ?>
+                        <td>
+                            <?= $val['fieldvalue'] ?>
+                        </td>
+                    <?php endforeach; ?>
+
+
                 </tr>
             <?php endforeach ?>
         <?php
@@ -620,5 +631,62 @@ class Todo extends CI_Controller
             </tr>
 <?php
         }
+    }
+
+    // Code Update
+    // Hàm response để trả về phản hồi JSON
+    public function responseGPT($data = [], $http_code = 200)
+    {
+        // Thiết lập tiêu đề cho phản hồi JSON
+        $this->output
+            ->set_content_type('application/json')
+            ->set_status_header($http_code) // Thiết lập mã HTTP
+            ->set_output(json_encode($data)); // Encode dữ liệu phản hồi dưới dạng JSON
+    }
+
+    public function ajaxDataTable()
+    {
+        // canAccessMiddleware('tongiao');
+
+        $draw = $this->input->get('draw');
+        $start = $this->input->get('start');
+        $length = $this->input->get('length');
+
+        // $order = json_encode($_GET['order']);
+        $searchValue = $this->input->get('searchValue');
+        // $dm_ton_giao_ma = $this->input->get('dm_ton_giao_ma');
+        // $created_at = $this->input->get('created_at');
+        $dataFilter = $this->input->get('dataFilter');
+
+
+        //  Replace API
+        $data = $this->Todo_model->getTodo();
+
+        if ($dataFilter) {
+            $data['dataFilter'] = [
+                'todo' => $this->db
+                    ->from('todo')
+                    ->select('id')
+                    ->get()
+                    ->result_array()
+            ];
+        }
+
+        echo json_encode($data);
+        die();
+
+        $response = $this->responseGPT([
+            'status' => 200,
+            'message' => 'Success',
+            'success' => true,
+            'data' => $data
+        ], 200);
+
+        //  End Replace API
+
+        // if ($response && $response['success'] == true) {
+        //     $data = $response['data'];
+        //     echo json_encode($data);
+        // }
     }
 }
