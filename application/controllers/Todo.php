@@ -29,6 +29,18 @@ class Todo extends CI_Controller
         }
     }
 
+    function dd($data)
+    {
+        if (is_array($data)) {
+            print_r('<pre>');
+            print_r($data);
+            die();
+        } else {
+            var_dump($data);
+            die();
+        }
+    }
+
     public function index()
     {
         // $todo['todo'] = $this->Todo_model->getAll();
@@ -56,7 +68,7 @@ class Todo extends CI_Controller
         $calendar['end'] = $this->input->post('end');
 
         $this->Calendar_model->add($calendar);
-        redirect('calendar');
+        redirect('todo/calendar');
     }
 
     public function import_excel()
@@ -188,13 +200,6 @@ class Todo extends CI_Controller
         session_destroy();
 
         $this->load->view('login');
-    }
-
-    public function list()
-    {
-        $todo['todo'] = $this->Todo_model->getAll();
-
-        $this->load->view('todo', $todo);
     }
 
     public function add()
@@ -529,11 +534,23 @@ class Todo extends CI_Controller
 
     public function getTodoByPriority()
     {
+        $todo_metas = [];
+        $code = $this->Todo_model->getAllTodoMeta();
+        $code_count = count($code);
+
+        $todo_empty = [];
+        foreach ($code as $key => $item) {
+            $todo_metas[$key] = $item['code'];
+        }
+
+        // dd($code_count);
+
         // $name = $this->input->post('name');
         $priority_id = $_GET['priority'];
         $todo = $this->Todo_model->getTodoPriority($priority_id);
 
         $todo_check = [];
+        $feildName = [];
         foreach ($todo as $key => $item) {
             $temp_id = $item['id'];
             if (!isset($todo_check[$temp_id])) {
@@ -546,54 +563,88 @@ class Todo extends CI_Controller
                 ];
             }
 
-            $todo_check[$temp_id]['fields'][] = [
+            if (!in_array($temp_id, $todo_empty)) {
+                foreach ($code as $key => $cod) {
+                    $todo_check[$temp_id]['fields'][$key] = [
+                        'code' => '',
+                        'fieldname' => '',
+                        'fieldvalue' => ''
+                    ];
+                }
+            }
+            if (!in_array($temp_id, $todo_empty)) {
+                array_push($todo_empty, $temp_id);
+            }
+
+
+            $code_index = array_search($item['code'], $todo_metas);
+
+            $todo_check[$temp_id]['fields'][$code_index] = [
+                'code' => $item['code'],
                 'fieldname' => $item['fieldname'],
                 'fieldvalue' => $item['fieldvalue']
             ];
+
+            if (!in_array($item['fieldname'], $feildName)) {
+                array_push($feildName, $item['fieldname']);
+            }
         }
 
         if (!empty($todo_check)) {
-            $no = 1;
-            foreach ($todo_check as $item): ?>
-                <tr>
-                    <td><?php echo $no++;
-                        ?></td>
-                    <td><img src="<?php echo base_url('todo/getImage?image=') . $item['image']; ?>" alt="" width="100" height="100"></td>
-                    <td><?php echo $item['name'] //$item->name
-                        ?></td>
-                    <td><?php echo $item['description'] //$item->description
-                        ?></td>
-                    <td><?php echo $item['priority'] //$item->priority
-                        ?></td>
+            $no = 1; ?>
 
-                    <td><a type="button" class="btn btn-warning" onclick="fillData(`<?php echo $item['id'];
-                                                                                    ?>`, `<?php echo $item['name']; ?>`,`<?php echo $item['description']; ?>`,`<?php echo $item['priority']; ?>`,)">Edit</a></td>
-                    <td><a
-                            type="button"
-                            href="<?php echo base_url(); ?>todo/delete/<?php echo $item['id'] ?>"
-                            class="btn btn-danger"
-                            onclick="return confirm('You want to delete this todo ?')">
-                            Delete
-                        </a>
-                    </td>
+            <!-- Mở thẻ table -->
+            <table border="1" cellpadding="10" cellspacing="0" class="table" id="todo-table">
+                <!-- Tạo phần tiêu đề của bảng -->
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Image</th>
+                        <th>Name</th>
+                        <th>Description</th>
+                        <th>Priority</th>
+                        <th>Actions</th>
+                        <?php foreach ($todo_metas as $todo_meta): ?>
+                            <th><?= $todo_meta ?></th>
+                        <?php endforeach; ?>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($todo_check as $item): ?>
+                        <tr>
+                            <td><?php echo $no++; ?></td>
+                            <td>
+                                <img src="<?php echo base_url('todo/getImage?image=') . $item['image']; ?>" alt="" width="100" height="100">
+                            </td>
+                            <td><?php echo $item['name']; ?></td>
+                            <td><?php echo $item['description']; ?></td>
+                            <td><?php echo $item['priority']; ?></td>
+                            <td>
+                                <a type="button" class="btn btn-warning" onclick="fillData(`<?php echo $item['id']; ?>`, `<?php echo $item['name']; ?>`, `<?php echo $item['description']; ?>`, `<?php echo $item['priority']; ?>`)">
+                                    Edit
+                                </a>
+                                <a type="button" href="<?php echo base_url(); ?>todo/delete/<?php echo $item['id'] ?>" class="btn btn-danger" onclick="return confirm('You want to delete this todo?')">
+                                    Delete
+                                </a>
+                            </td>
 
-                    <?php foreach ($item['fields'] as $val): ?>
-                        <td>
-                            <?= $val['fieldvalue'] ?>
-                        </td>
+                            <!-- Hiển thị các fields bổ sung -->
+                            <?php foreach ($item['fields'] as $val): ?>
+                                <td>
+                                    <?= $val['fieldvalue'] ?>
+                                </td>
+                            <?php endforeach; ?>
+                        </tr>
                     <?php endforeach; ?>
+                </tbody>
+            </table>
+            <!-- Đóng thẻ table -->
 
-
-                </tr>
-            <?php endforeach ?>
-        <?php
-        } else {
-        ?>
+        <?php } else { ?>
             <tr>
-                <td>There is do data</td>
+                <td>There is no data</td>
             </tr>
-            <?php
-        }
+            <?php }
     }
 
     public function loadTodo()

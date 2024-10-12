@@ -152,23 +152,9 @@
                 <h4 class="text-center">ToDo Table</h4>
             </div>
             <div class="card-body">
-                <table class="table" id="todo-table">
-                    <thead>
-                        <tr>
-                            <th scope="col">#</th>
-                            <th scope="col">Image</th>
-                            <th scope="col">Name</th>
-                            <th scope="col">Description</th>
-                            <th scope="col">Priority</th>
-                            <th scope="col">Test</th>
-                            <th scope="col" colspan="2">Action</th>
-                            <th colspan="10"></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-
-                    </tbody>
-                </table>
+                <div id="tableContainer">
+                    <!-- Bảng sẽ được render tại đây -->
+                </div>
             </div>
             <!-- </div> -->
         </div>
@@ -241,7 +227,7 @@
                 url: "<?php echo base_url('todo/getTodoByPriority') ?>",
                 data: "priority=" + priority,
                 success: function(data) {
-                    $("#todo-table tbody").html(data);
+                    $('#tableContainer').html(data);
                 }
             });
         }

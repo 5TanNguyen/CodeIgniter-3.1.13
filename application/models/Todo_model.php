@@ -20,10 +20,33 @@ class Todo_model extends CI_Model
         return $this->db->get()->result_array();
     }
 
+    public function getAllTodoMeta()
+    {
+        $todo_meta = $this->db
+            ->distinct()
+            ->from('todo_meta')
+            ->select('code')
+            ->get()
+            ->result_array();
+
+        return $todo_meta ? $todo_meta : [];
+    }
+
     public function getTodoPriority($priority = null)
     {
-        return $priority ? $this->db->from('todo')->select('*')->where('priority', $priority)->join('todo_meta', 'todo_meta.todo_id = todo.id', 'left')->get()->result() :
-            $this->db->select('*')->from('todo')->join('todo_meta', 'todo_meta.todo_id = todo.id', 'left')->get()->result_array();
+        return $priority ?
+            $this->db
+            ->from('todo')
+            ->select('*')
+            ->where('priority', $priority)
+            ->join('todo_meta', 'todo_meta.todo_id = todo.id', 'left')
+            ->get()->result()
+            :
+            $this->db
+            ->select('*')
+            ->from('todo')
+            ->join('todo_meta', 'todo_meta.todo_id = todo.id', 'left')
+            ->get()->result_array();
     }
 
     public function delete($todo_id)
