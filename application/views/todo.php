@@ -9,6 +9,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Todo Test</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
 
 <style>
@@ -192,6 +193,20 @@
             padding: 2px;
             border-radius: 5px;
         }
+
+        .no-border {
+            border: none;
+            /* Không có viền khi bình thường */
+            outline: none;
+            /* Bỏ đường viền bên ngoài khi nhấn */
+        }
+
+        .no-border:focus {
+            border: 1px solid #4b69c1;
+            /* Hiển thị viền khi input được focus */
+            outline: none;
+            /* Không hiển thị viền ngoài */
+        }
     </style>
     </section>
     </div>
@@ -212,12 +227,12 @@
 
 
         // Close modal if user clicks outside of modal content
-        window.onclick = function(event) {
-            if (event.target == modal) {
-                closeModalSmoothly();
-                errorMessage.style.display = "none"; // Hide error message if it's visible
-            }
-        }
+        // window.onclick = function(event) {
+        //     if (event.target == modal) {
+        //         closeModalSmoothly();
+        //         errorMessage.style.display = "none"; // Hide error message if it's visible
+        //     }
+        // }
 
 
 
@@ -335,13 +350,13 @@
                         complete: function() {
                             // Kích hoạt lại nút tìm kiếm sau khi AJAX hoàn thành
                             setTimeout(function() {
-                                searchButton.prop('disabled', false);
+                                // searchButton.prop('disabled', false);
                             }, 2000)
                         },
                         error: function() {
                             // Kích hoạt lại nút tìm kiếm trong trường hợp gặp lỗi
                             setTimeout(function() {
-                                searchButton.prop('disabled', false);
+                                // searchButton.prop('disabled', false);
                             }, 2000)
                         }
                     },
