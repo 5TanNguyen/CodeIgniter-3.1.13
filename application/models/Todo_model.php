@@ -187,4 +187,15 @@ class Todo_model extends CI_Model
             ->where('id', $id)
             ->update('todo', $data);
     }
+
+    public function setValueFieldTodoMeta($id, $field, $value)
+    {
+        $data = array(
+            $field => $value
+        );
+
+        return $this->db
+            ->where('todo_meta_id', $id)
+            ->update('todo_meta', $data);
+    }
 }

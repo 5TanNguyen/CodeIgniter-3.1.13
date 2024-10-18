@@ -564,6 +564,7 @@ class Todo extends CI_Controller
             if (!in_array($temp_id, $todo_empty)) {
                 foreach ($code as $key => $cod) {
                     $todo_check[$temp_id]['fields'][$key] = [
+                        'todo_meta_id' => '',
                         'code' => '',
                         'fieldname' => '',
                         'fieldvalue' => ''
@@ -578,6 +579,7 @@ class Todo extends CI_Controller
             $code_index = array_search($item['code'], $todo_metas);
 
             $todo_check[$temp_id]['fields'][$code_index] = [
+                'todo_meta_id' => $item['todo_meta_id'],
                 'code' => $item['code'],
                 'fieldname' => $item['fieldname'],
                 'fieldvalue' => $item['fieldvalue']
@@ -587,6 +589,8 @@ class Todo extends CI_Controller
                 array_push($feildName, $item['fieldname']);
             }
         }
+
+        // dd($todo_check);
 
         if (!empty($todo_check)) {
             $no = 1; ?>
@@ -610,13 +614,21 @@ class Todo extends CI_Controller
                 <tbody>
                     <?php foreach ($todo_check as $item): ?>
                         <tr>
-                            <td><?php echo $no++; ?></td>
+                            <td><?php echo $item['id']; //$no++; 
+                                ?></td>
                             <td>
                                 <img src="<?php echo base_url('todo/getImage?image=') . $item['image']; ?>" alt="" width="100" height="100">
                             </td>
                             <td><input type="text" value="<?= $item['name']; ?>" class="no-border todo_input" data-id="<?= $item['id'] ?>" data-field="name"></td>
                             <td><input type="text" value="<?= $item['description']; ?>" class="no-border todo_input" data-id="<?= $item['id'] ?>" data-field="description"></td>
-                            <td><?= $item['priority']; ?></td>
+                            <td>
+                                <select name="todo_input" class="todo_input form-control" data-id="<?= $item['id'] ?>" data-field="priority">
+                                    <option value="<?= $item['priority']; ?>"><?= $item['priority']; ?></option>
+                                    <option value="1">1</option>
+                                    <option value="2">2</option>
+                                    <option value="3">3</option>
+                                </select>
+                            </td>
                             <td>
                                 <a type="button" class="btn btn-warning" onclick="fillData(`<?php echo $item['id']; ?>`, `<?php echo $item['name']; ?>`, `<?php echo $item['description']; ?>`, `<?php echo $item['priority']; ?>`)">
                                     <i class="fa-solid fa-pen-to-square"></i>
@@ -628,9 +640,7 @@ class Todo extends CI_Controller
 
                             <!-- Hiển thị các fields bổ sung -->
                             <?php foreach ($item['fields'] as $val): ?>
-                                <td>
-                                    <?= $val['fieldvalue'] ?>
-                                </td>
+                                <td><input type="text" value="<?= $val['fieldvalue'] ?>" class="no-border todo_meta_input" data-id="<?= $val['todo_meta_id'] ?>" data-field="fieldvalue" style="width: 100px;"></td>
                             <?php endforeach; ?>
                         </tr>
                     <?php endforeach; ?>
@@ -646,7 +656,7 @@ class Todo extends CI_Controller
 
                         // Gửi dữ liệu qua Ajax
                         $.ajax({
-                            url: '<?php echo base_url('todo/updateOnChange') ?>',
+                            url: '<?php echo base_url('todo/updateTodoOnChange') ?>',
                             type: 'POST',
                             data: {
                                 todoId: todo_id,
@@ -654,7 +664,33 @@ class Todo extends CI_Controller
                                 todoField: todo_field
                             },
                             success: function(response) {
-                                // Hiển thị phản hồi từ server
+                                datatableCallAjax();
+                            },
+                            error: function() {
+                                alert('Lỗi rồi');
+                            }
+                        });
+                    });
+
+                    $(".todo_meta_input").change(function() {
+                        var todo_meta_id = $(this).data('id');
+                        var todo_meta_field = $(this).data('field');
+                        var todo_meta_value = $(this).val(); // Lấy giá trị từ input
+
+                        // alert(todo_meta_id);
+                        // alert(todo_meta_field);
+                        // alert(todo_meta_value);
+
+                        // Gửi dữ liệu qua Ajax
+                        $.ajax({
+                            url: '<?php echo base_url('todo/updateTodoMetaOnChange') ?>',
+                            type: 'POST',
+                            data: {
+                                todoMetaId: todo_meta_id,
+                                todoMetaField: todo_meta_field,
+                                todoMetaValue: todo_meta_value,
+                            },
+                            success: function(response) {
                                 datatableCallAjax();
                             },
                             error: function() {
@@ -730,12 +766,21 @@ class Todo extends CI_Controller
         // }
     }
 
-    public function updateOnChange()
+    public function updateTodoOnChange()
     {
         $id = $this->input->post('todoId');
         $field = $this->input->post('todoField');
         $value = $this->input->post('todoValue');
         $succcess = $this->Todo_model->setValueField($id, $field, $value);
+        return $succcess;
+    }
+
+    public function updateTodoMetaOnChange()
+    {
+        $id = $this->input->post('todoMetaId');
+        $field = $this->input->post('todoMetaField');
+        $value = $this->input->post('todoMetaValue');
+        $succcess = $this->Todo_model->setValueFieldTodoMeta($id, $field, $value);
         return $succcess;
     }
 }
