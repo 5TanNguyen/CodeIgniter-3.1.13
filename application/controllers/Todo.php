@@ -547,6 +547,8 @@ class Todo extends CI_Controller
 
         // lấy danh sách todo đã join với todo_meta
         $todo = $this->Todo_model->getTodoPriority($priority_id);
+
+        // dd($todo);
         $todo_check = [];
         $feildName = [];
         foreach ($todo as $key => $item) {
@@ -736,7 +738,62 @@ class Todo extends CI_Controller
 
 
         //  Replace API
+        $todo_metas = [];
+        // lấy các mã code trong todo_meta đã distinct
+        $code = $this->Todo_model->getAllTodoMeta();
+        $todo_empty = [];
+        foreach ($code as $key => $item) {
+            $todo_metas[$key] = $item['code'];
+        }
+
+        // lấy danh sách todo đã join với todo_meta
         $data = $this->Todo_model->getTodo();
+
+        $todo_check = [];
+        $feildName = [];
+        foreach ($data['data'] as $key => $item) {
+            $temp_id = $item['id'];
+            if (!isset($todo_check[$temp_id])) {
+                $todo_check[$temp_id] = [
+                    'id' => $item['id'],
+                    'image' => $item['image'],
+                    'name' => $item['name'],
+                    'description' => $item['description'],
+                    'priority' => $item['priority']
+                ];
+            }
+
+            if (!in_array($temp_id, $todo_empty)) {
+                foreach ($code as $key => $cod) {
+                    $todo_check[$temp_id]['fields'][$key] = [
+                        'todo_meta_id' => '',
+                        'code' => '',
+                        'fieldname' => '',
+                        'fieldvalue' => ''
+                    ];
+                }
+            }
+            if (!in_array($temp_id, $todo_empty)) {
+                array_push($todo_empty, $temp_id);
+            }
+
+
+            $code_index = array_search($item['code'], $todo_metas);
+
+            $todo_check[$temp_id]['fields'][$code_index] = [
+                'todo_meta_id' => $item['todo_meta_id'],
+                'code' => $item['code'],
+                'fieldname' => $item['fieldname'],
+                'fieldvalue' => $item['fieldvalue']
+            ];
+
+            if (!in_array($item['fieldname'], $feildName)) {
+                array_push($feildName, $item['fieldname']);
+            }
+        }
+
+        // unset($data['data']);
+        // $data['data'] = $todo_check;
 
         if ($dataFilter) {
             $data['dataFilter'] = [
@@ -747,6 +804,8 @@ class Todo extends CI_Controller
                     ->result_array()
             ];
         }
+
+        // dd($data);
 
         echo json_encode($data);
         die();

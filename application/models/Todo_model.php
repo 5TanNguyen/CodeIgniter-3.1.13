@@ -108,6 +108,10 @@ class Todo_model extends CI_Model
              description,
              priority,
              image,
+             todo_meta_id,
+             code,
+             fieldname,
+             fieldvalue
          ";
 
         // Các cột order
@@ -117,12 +121,12 @@ class Todo_model extends CI_Model
             'image',
             'name',
             'description',
-            'image',
         ];
 
         $this->db
             ->select($select_fields)
-            ->group_by('id');
+            ->join('todo_meta', 'todo_meta.todo_id = todo.id', 'left')
+            ->group_by('id, todo_meta_id');
 
         // Điếm tổng số lượng trước khi lọc
         $totalRecordsQuery = clone $this->db;
