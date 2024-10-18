@@ -614,8 +614,8 @@ class Todo extends CI_Controller
                             <td>
                                 <img src="<?php echo base_url('todo/getImage?image=') . $item['image']; ?>" alt="" width="100" height="100">
                             </td>
-                            <td><input type="text" value="<?= $item['name']; ?>" class="no-border" id="todo_name"></td>
-                            <td><?= $item['description']; ?></td>
+                            <td><input type="text" value="<?= $item['name']; ?>" class="no-border todo_input" data-id="<?= $item['id'] ?>" data-field="name"></td>
+                            <td><input type="text" value="<?= $item['description']; ?>" class="no-border todo_input" data-id="<?= $item['id'] ?>" data-field="description"></td>
                             <td><?= $item['priority']; ?></td>
                             <td>
                                 <a type="button" class="btn btn-warning" onclick="fillData(`<?php echo $item['id']; ?>`, `<?php echo $item['name']; ?>`, `<?php echo $item['description']; ?>`, `<?php echo $item['priority']; ?>`)">
@@ -639,19 +639,23 @@ class Todo extends CI_Controller
 
             <script>
                 $(document).ready(function() {
-                    $("#todo_name").change(function() {
-                        var inputData = $(this).val(); // Lấy giá trị từ input
+                    $(".todo_input").change(function() {
+                        var todo_id = $(this).data('id');
+                        var todo_field = $(this).data('field');
+                        var value = $(this).val(); // Lấy giá trị từ input
 
                         // Gửi dữ liệu qua Ajax
                         $.ajax({
                             url: '<?php echo base_url('todo/updateOnChange') ?>',
                             type: 'POST',
                             data: {
-                                todoName: inputData
+                                todoId: todo_id,
+                                todoValue: value,
+                                todoField: todo_field
                             },
                             success: function(response) {
                                 // Hiển thị phản hồi từ server
-                                alert('Success');
+                                datatableCallAjax();
                             },
                             error: function() {
                                 alert('Lỗi rồi');
@@ -666,44 +670,7 @@ class Todo extends CI_Controller
             <tr>
                 <td>There is no data</td>
             </tr>
-            <?php }
-    }
-
-    public function loadTodo()
-    {
-        $todo = $this->Todo_model->getAll();
-        if (!empty($todo)) {
-            $no = 1;
-            foreach ($todo as $item): ?>
-                <tr>
-                    <td><?php echo $no;
-                        ?></td>
-                    <td><?php echo $item->name
-                        ?></td>
-                    <td><?php echo $item->description
-                        ?></td>
-                    <td><?php echo $item->priority
-                        ?></td>
-                    <td><a type="button" class="btn btn-warning" onclick="fillData(`<?php echo $item->id;
-                                                                                    ?>`, `<?php echo $item->name; ?>`,`<?php echo $item->description; ?>`,`<?php echo $item->priority; ?>`,)">Edit</a></td>
-                    <td><a
-                            type="button"
-                            href="<?php echo base_url(); ?>todo/delete/<?php echo $item->id ?>"
-                            class="btn btn-danger"
-                            onclick="return confirm('You want to delete this todo ?')">
-                            Delete
-                        </a>
-                    </td>
-                </tr>
-            <?php endforeach ?>
-        <?php
-        } else {
-        ?>
-            <tr>
-                <td>There is do data</td>
-            </tr>
-<?php
-        }
+<?php }
     }
 
     // Code Update
@@ -765,7 +732,10 @@ class Todo extends CI_Controller
 
     public function updateOnChange()
     {
-        $name = $this->input->post('todoName');
-        echo $name;
+        $id = $this->input->post('todoId');
+        $field = $this->input->post('todoField');
+        $value = $this->input->post('todoValue');
+        $succcess = $this->Todo_model->setValueField($id, $field, $value);
+        return $succcess;
     }
 }
