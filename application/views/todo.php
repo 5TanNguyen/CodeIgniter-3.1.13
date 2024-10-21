@@ -154,9 +154,7 @@
             </div>
             <div class="card-body">
                 <select name="" id="priorityId">
-                    <option value="1">1</option>
-                    <option value="2">2</option>
-                    <option value="3">3</option>
+                    <option value="">All</option>
                 </select>
                 <div id="tableContainer">
                     <!-- Bảng sẽ được render tại đây -->
@@ -257,10 +255,8 @@
             // let searchValue = $('#searchValue').val();
             let priorityId = $('#priorityId').val();
             // let created_at = $('#created_at').val();
-            // dataFilter = dataFilter;
 
             let searchValue = '';
-            // let priorityId = '';
             let created_at = '';
             dataFilter = dataFilter;
 
@@ -333,7 +329,7 @@
                             if (dataFilter && json.dataFilter) {
                                 let todo = json.dataFilter.todo;
                                 todo.forEach(element => {
-                                    $('#id').append(`<option value="${element.id}">${element.id}</option>`);
+                                    $('#priorityId').append(`<option value="${element.priority}">${element.priority}</option>`);
                                 });
 
                                 dataFilter = false;

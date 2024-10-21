@@ -94,8 +94,12 @@ class Todo_model extends CI_Model
 
     public function getTodo()
     {
+        $draw = $this->commonRequest('draw');
+
         // $searchValue = commonRequest('searchValue');
-        // $dm_ton_giao_ma = commonRequest('dm_ton_giao_ma');
+        $priorityId = $this->commonRequest('priorityId');
+        $dataFilter = $this->commonRequest('dataFilter');
+
         // $created_at = commonRequest('created_at');
 
         $start = $this->input->get('start') ?? 0;
@@ -140,7 +144,7 @@ class Todo_model extends CI_Model
         //     $this->db->group_end(); // Kết thúc nhóm các điều kiện LIKE
         // }
 
-        // if ($dm_ton_giao_ma) $this->db->where('dm_ton_giao_ma', $dm_ton_giao_ma);
+        if ($priorityId) $this->db->where('todo.priority', $priorityId);
 
         // if ($created_at) {
         //     $this->db->where('dm_ton_giao.created_at >=', "{$created_at} 00:00:00");
@@ -172,6 +176,24 @@ class Todo_model extends CI_Model
         $data = $this->db
             ->get('todo')
             ->result_array();
+
+        if ($dataFilter) {
+            $filter = [
+                'todo' => $this->db
+                    ->from('todo')
+                    ->select('priority')
+                    ->get()
+                    ->result_array()
+            ];
+
+            return [
+                'draw' => $draw,
+                'recordsTotal' => $recordsTotal,
+                'recordsFiltered' => $recordsFiltered,
+                'data' => $data,
+                'dataFilter' => $filter
+            ];
+        }
 
         return [
             'draw' => $this->input->get('draw'),

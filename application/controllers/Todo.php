@@ -734,8 +734,6 @@ class Todo extends CI_Controller
         $searchValue = $this->input->get('searchValue');
         // $dm_ton_giao_ma = $this->input->get('dm_ton_giao_ma');
         // $created_at = $this->input->get('created_at');
-        $dataFilter = $this->input->get('dataFilter');
-
 
         //  Replace API
         $todo_metas = [];
@@ -792,20 +790,8 @@ class Todo extends CI_Controller
             }
         }
 
-        // unset($data['data']);
-        // $data['data'] = $todo_check;
-
-        if ($dataFilter) {
-            $data['dataFilter'] = [
-                'todo' => $this->db
-                    ->from('todo')
-                    ->select('id')
-                    ->get()
-                    ->result_array()
-            ];
-        }
-
-        // dd($data);
+        unset($data['data']);
+        $data['data'] = array_values($todo_check);
 
         echo json_encode($data);
         die();
