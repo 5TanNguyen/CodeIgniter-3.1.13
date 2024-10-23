@@ -81,6 +81,10 @@
         <br>
         <div class="row">
             <h2 class="text-center">ToDo Test</h2>
+            <input type="text" name="" id="searchValue">
+            <button id="searchBtn" class="btn btn-light-custom position-relative">
+                <i class="fas fa-search"></i>
+            </button>
         </div>
 
         <div class="mb-5 border border-primary" style="padding: 5px;">
@@ -153,17 +157,16 @@
                 <h4 class="text-center">ToDo Table</h4>
             </div>
             <div class="card-body">
-                <select name="" id="priorityId">
-                    <option value="">All</option>
-                </select>
                 <div id="tableContainer">
                     <!-- Bảng sẽ được render tại đây -->
                 </div>
             </div>
-            <!-- </div> -->
         </div>
         <div class="row">
             <div class="col-md-12">
+                <select name="" id="priorityId" onchange="searchData()">
+                    <option value="">All</option>
+                </select>
                 <div class="table-responsive">
                     <table id="diemTable" class="table table-bordered table-striped datatables">
                         <thead>
@@ -249,14 +252,13 @@
         ////////////////////////////////////// Update Code /////////////////////////////////////
         // Datatables Ajax
         var dataFilter = true;
-        // var searchButton = $('#searchBtn');
+        var searchButton = $('#searchBtn');
 
         function datatableCallAjax() {
-            // let searchValue = $('#searchValue').val();
+            let searchValue = $('#searchValue').val();
             let priorityId = $('#priorityId').val();
             // let created_at = $('#created_at').val();
 
-            let searchValue = '';
             let created_at = '';
             dataFilter = dataFilter;
 
@@ -346,13 +348,13 @@
                         complete: function() {
                             // Kích hoạt lại nút tìm kiếm sau khi AJAX hoàn thành
                             setTimeout(function() {
-                                // searchButton.prop('disabled', false);
+                                searchButton.prop('disabled', false);
                             }, 2000)
                         },
                         error: function() {
                             // Kích hoạt lại nút tìm kiếm trong trường hợp gặp lỗi
                             setTimeout(function() {
-                                // searchButton.prop('disabled', false);
+                                searchButton.prop('disabled', false);
                             }, 2000)
                         }
                     },
