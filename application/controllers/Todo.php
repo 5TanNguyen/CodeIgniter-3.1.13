@@ -6,6 +6,12 @@ require 'vendor/autoload.php';
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
+/**
+ * @property Todo_model $Todo_model
+ * @property User_model $User_model
+ * @property Calendar_model $Calendar_model
+ * 
+ */
 class Todo extends CI_Controller
 {
     public function __construct()
@@ -43,21 +49,23 @@ class Todo extends CI_Controller
 
     public function index()
     {
-        // $todo['todo'] = $this->Todo_model->getAll();
-        // $this->load->view('todo', $todo); // 7.4.33
-
         if (!isset($_SESSION['email'])) {
             $this->load->view('login');
         } else {
-            $this->load->view('todo');
+            $this->load->view('todo/todo');
         }
+    }
+
+    public function chart()
+    {
+        $this->load->view('todo/todo_chart');
     }
 
     public function calendar()
     {
         $calendar['calendar'] = $this->Calendar_model->getAll();
 
-        $this->load->view('calendar', $calendar);
+        $this->load->view('calendar/calendar', $calendar);
     }
 
     public function calendar_add()
@@ -174,14 +182,6 @@ class Todo extends CI_Controller
 
         $user = $this->User_model->findByEmail($email);
 
-        // var_dump($user[0]->email);
-        // die();
-        // if (!empty($user)) {
-        //     $_SESSION['email'] = $user[0]->email;
-        //     $_SESSION['firstname'] = $user[0]->firstname;
-        //     $_SESSION['lastname'] = $user[0]->lastname;
-        // }
-
         $_SESSION['user_id'] = $user[0]->id;
         $_SESSION['email'] = $user[0]->email;
         $_SESSION['firstname'] = $user[0]->firstname;
@@ -205,24 +205,13 @@ class Todo extends CI_Controller
     public function add()
     {
         $todo['user_id'] = 1;
-        // $key = $this->input->post("key");
         $key = 'my-key';
 
-        // $item_id = $this->input->post("item_id");
         $item_id = 'my-item_id';
 
-        // $key_code = $this->input->post("key_code");
         $key_code = 'my-key_code';
 
-        // $meta_id = $this->input->post("meta_id");
         $meta_id = 'my-meta_id';
-
-        // // Check key code exists
-        // if (empty($key_code) || !isset($key_code)) {
-        //     // Handle update key code for group
-        //     $key_code = time() . $group_id;
-        //     $this->Items_model->update(['key_code' => $key_code], $group_id);
-        // }
 
         if (!empty($_FILES['image']['name'])) {
             $_FILES['file']['name'] = $_FILES['image']['name'];
@@ -440,24 +429,10 @@ class Todo extends CI_Controller
     public function userUpdate()
     {
         $user_id = $_SESSION['user_id'];
-        // $key = $this->input->post("key");
         $key = 'my-key';
-
-        // $item_id = $this->input->post("item_id");
         $item_id = 'my-item_id';
-
-        // $key_code = $this->input->post("key_code");
         $key_code = 'my-key_code';
-
-        // $meta_id = $this->input->post("meta_id");
         $meta_id = 'my-meta_id';
-
-        // // Check key code exists
-        // if (empty($key_code) || !isset($key_code)) {
-        //     // Handle update key code for group
-        //     $key_code = time() . $group_id;
-        //     $this->Items_model->update(['key_code' => $key_code], $group_id);
-        // }
 
         if (!empty($_FILES['image']['name'])) {
             $_FILES['file']['name'] = $_FILES['image']['name'];
@@ -472,7 +447,6 @@ class Todo extends CI_Controller
             $config['file_name'] = $hashedFileName;
             $config['upload_path'] = "uploads/";
 
-            // Check folder exists
             if (!is_dir($config['upload_path'])) {
                 mkdir($config['upload_path']);
             }
@@ -502,7 +476,6 @@ class Todo extends CI_Controller
                 $data['item_id'] = $item_id;
                 $data['content_type'] = $_FILES['file']['type'];
 
-                // Handle encrypt file
                 $file_name_enc = $hashedFileName . '.enc';
                 $upload_path = $config['upload_path'];
 
@@ -536,21 +509,29 @@ class Todo extends CI_Controller
     {
         $todo_metas = [];
 
-        // lấy các mã code trong todo_meta đã distinct
-        $code = $this->Todo_model->getAllTodoMeta();
+        $code = $this->Todo_model->getAllCodeTodoMeta();
         $todo_empty = [];
         foreach ($code as $key => $item) {
             $todo_metas[$key] = $item['code'];
         }
-        // $name = $this->input->post('name');
-        $priority_id = $_GET['priority'];
 
-        // lấy danh sách todo đã join với todo_meta
+        $priority_id = $_GET['priority'];
         $todo = $this->Todo_model->getTodoPriority($priority_id);
 
-        // dd($todo);
         $todo_check = [];
         $feildName = [];
+
+        $statusArray = [
+            1 => 'Chưa bắt đầu',
+            2 => 'Đang làm',
+            3 => 'Hoàn thành',
+        ];
+
+        $statusArrayColor = [
+            1 => '#48dbfb',
+            2 => '#f6e58d',
+            3 => '#2ecc71',
+        ];
         foreach ($todo as $key => $item) {
             $temp_id = $item['id'];
             if (!isset($todo_check[$temp_id])) {
@@ -559,7 +540,10 @@ class Todo extends CI_Controller
                     'image' => $item['image'],
                     'name' => $item['name'],
                     'description' => $item['description'],
-                    'priority' => $item['priority']
+                    'priority' => $item['priority'],
+                    'status' => $item['status'],
+                    'statusText' => $statusArray[$item['status']],
+                    'date' => $item['date'],
                 ];
             }
 
@@ -594,60 +578,78 @@ class Todo extends CI_Controller
 
         // dd($todo_check);
 
-        if (!empty($todo_check)) {
-            $no = 1; ?>
+        if (!empty($todo_check)) { ?>
 
             <!-- Mở thẻ table -->
-            <table border="1" cellpadding="10" cellspacing="0" class="table" id="todo-table">
-                <!-- Tạo phần tiêu đề của bảng -->
-                <thead>
-                    <tr>
-                        <th>No</th>
-                        <th>Image</th>
-                        <th>Name</th>
-                        <th>Description</th>
-                        <th>Priority</th>
-                        <th>Actions</th>
-                        <?php foreach ($feildName as $todo_meta): ?>
-                            <th><?= $todo_meta ?></th>
-                        <?php endforeach; ?>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($todo_check as $item): ?>
+            <div style="overflow-x: auto; max-width: 100%; border: 1px solid #ccc;">
+                <table border="1" cellpadding="10" cellspacing="0" class="table" id="todo-table" style="width: 800px;">
+                    <!-- Tạo phần tiêu đề của bảng -->
+                    <thead>
                         <tr>
-                            <td><?php echo $item['id']; //$no++; 
-                                ?></td>
-                            <td>
-                                <img src="<?php echo base_url('todo/getImage?image=') . $item['image']; ?>" alt="" width="100" height="100">
-                            </td>
-                            <td><input type="text" value="<?= $item['name']; ?>" class="no-border todo_input" data-id="<?= $item['id'] ?>" data-field="name"></td>
-                            <td><input type="text" value="<?= $item['description']; ?>" class="no-border todo_input" data-id="<?= $item['id'] ?>" data-field="description"></td>
-                            <td>
-                                <select name="todo_input" class="todo_input form-control" data-id="<?= $item['id'] ?>" data-field="priority">
-                                    <option value="<?= $item['priority']; ?>"><?= $item['priority']; ?></option>
-                                    <option value="1">1</option>
-                                    <option value="2">2</option>
-                                    <option value="3">3</option>
-                                </select>
-                            </td>
-                            <td>
-                                <a type="button" class="btn btn-warning" onclick="fillData(`<?php echo $item['id']; ?>`, `<?php echo $item['name']; ?>`, `<?php echo $item['description']; ?>`, `<?php echo $item['priority']; ?>`)">
-                                    <i class="fa-solid fa-pen-to-square"></i>
-                                </a>
-                                <a type="button" href="<?php echo base_url(); ?>todo/delete/<?php echo $item['id'] ?>" class="btn btn-danger" onclick="return confirm('You want to delete this todo?')">
-                                    <i class="fa-solid fa-trash"></i>
-                                </a>
-                            </td>
-
-                            <!-- Hiển thị các fields bổ sung -->
-                            <?php foreach ($item['fields'] as $val): ?>
-                                <td><input type="text" value="<?= $val['fieldvalue'] ?>" class="no-border todo_meta_input" data-id="<?= $val['todo_meta_id'] ?>" data-field="fieldvalue" style="width: 100px;"></td>
+                            <th>No</th>
+                            <th>Image</th>
+                            <th style="position: sticky; left: 0; background-color: white; z-index: 10;">Name</th>
+                            <th>Description</th>
+                            <th>Priority</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                            <?php foreach ($feildName as $todo_meta): ?>
+                                <th><?= $todo_meta ?></th>
                             <?php endforeach; ?>
                         </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($todo_check as $item): ?>
+                            <tr>
+                                <td><?php echo $item['id']; ?></td>
+                                <td style="position: relative; text-align: center;">
+                                    <img src="<?php echo base_url('todo/getImage?image=') . $item['image']; ?>" alt="" width="100" height="100">
+                                    <div style="position: absolute; bottom: 15px; left: 50%; transform: translateX(-50%); display: flex; gap: 5px;">
+                                        <a type="button" class="btn btn-warning"
+                                            style="width: 48%; opacity: 0.7; transition: opacity 0.3s;"
+                                            onmouseover="this.style.opacity='1';" onmouseout="this.style.opacity='0.7';"
+                                            onclick="fillData(`<?php echo $item['id']; ?>`, `<?php echo $item['name']; ?>`, `<?php echo $item['description']; ?>`, `<?php echo $item['priority']; ?>`)">
+                                            <i class="fa-solid fa-pen-to-square"></i>
+                                        </a>
+                                        <a type="button" href="<?php echo base_url(); ?>todo/delete/<?php echo $item['id'] ?>"
+                                            class="btn btn-danger"
+                                            style="width: 48%; opacity: 0.7; transition: opacity 0.3s;"
+                                            onmouseover="this.style.opacity='1';" onmouseout="this.style.opacity='0.7';"
+                                            onclick="return confirm('You want to delete this todo?')">
+                                            <i class="fa-solid fa-trash"></i>
+                                        </a>
+                                    </div>
+                                </td>
+
+                                <td style="position: sticky; left: 0; background-color: white; z-index: 10;"><input type="text" value="<?= $item['name']; ?>" class="no-border todo_input" data-id="<?= $item['id'] ?>" data-field="name"></td>
+                                <td><input type="text" value="<?= $item['description']; ?>" class="no-border todo_input" data-id="<?= $item['id'] ?>" data-field="description"></td>
+                                <td>
+                                    <select name="todo_input" class="todo_input form-control" data-id="<?= $item['id'] ?>" data-field="priority" data-status="<?= $item['id'] ?>">
+                                        <option value="<?= $item['priority']; ?>"><?= $item['priority']; ?></option>
+                                        <option value="1">1</option>
+                                        <option value="2">2</option>
+                                        <option value="3">3</option>
+                                    </select>
+                                </td>
+                                <td>
+                                    <select id="<?= 'status' . $item['id'] ?>" style="background-color: <?= $statusArrayColor[$item['status']] ?>;" class="no-border todo_input" data-id="<?= $item['id'] ?>" data-field="status">
+                                        <option style="background-color: <?= $statusArrayColor[$item['status']] ?>;" value="<?= $item['status']; ?>"><?= $item['statusText']; ?></option>
+                                        <option style="background-color: #48dbfb;" value="1">Chưa bắt đầu</option>
+                                        <option style="background-color: #f6e58d;" value="2">Đang làm</option>
+                                        <option style="background-color: #2ecc71;" value="3">Hoàn thành</option>
+                                    </select>
+                                </td>
+                                <td><input type="date" value="<?= $item['date']; ?>" class="no-border todo_input" data-id="<?= $item['id'] ?>" data-field="date"></td>
+
+                                <!-- Hiển thị các fields của todo_meta -->
+                                <?php foreach ($item['fields'] as $val): ?>
+                                    <td><input type="text" value="<?= $val['fieldvalue'] ?>" class="no-border todo_meta_input" data-id="<?= $val['todo_meta_id'] ?>" data-field="fieldvalue" style="width: 100px;"></td>
+                                <?php endforeach; ?>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
 
             <script>
                 $(document).ready(function() {
@@ -655,6 +657,14 @@ class Todo extends CI_Controller
                         var todo_id = $(this).data('id');
                         var todo_field = $(this).data('field');
                         var value = $(this).val(); // Lấy giá trị từ input
+
+                        // Thao tác status
+                        var statusArrayColor = {
+                            1: '#48dbfb',
+                            2: '#f6e58d',
+                            3: '#2ecc71',
+                        }
+                        // Thao tác status
 
                         // Gửi dữ liệu qua Ajax
                         $.ajax({
@@ -666,7 +676,25 @@ class Todo extends CI_Controller
                                 todoField: todo_field
                             },
                             success: function(response) {
+                                // loadTodoPriority();
                                 datatableCallAjax();
+
+                                // Thao tác status
+                                if (todo_field === 'status') {
+                                    // let select = $(`[data-id="${todo_id}"][data-field="status"]`);
+                                    let select = $(`#status${todo_id}`);
+
+                                    // Đặt màu nền ban đầu theo giá trị hiện tại của select
+                                    const initialColor = statusArrayColor[select.val()] || '#fff';
+                                    select.css('background-color', initialColor);
+
+                                    select.on('change', function() {
+                                        const newColor = $(this).val();
+                                        $(this).css('background-color', statusArrayColor[newColor] || '#fff');
+                                    });
+                                }
+
+                                // Thao tác status
                             },
                             error: function() {
                                 alert('Lỗi rồi');
@@ -679,11 +707,6 @@ class Todo extends CI_Controller
                         var todo_meta_field = $(this).data('field');
                         var todo_meta_value = $(this).val(); // Lấy giá trị từ input
 
-                        // alert(todo_meta_id);
-                        // alert(todo_meta_field);
-                        // alert(todo_meta_value);
-
-                        // Gửi dữ liệu qua Ajax
                         $.ajax({
                             url: '<?php echo base_url('todo/updateTodoMetaOnChange') ?>',
                             type: 'POST',
@@ -693,6 +716,7 @@ class Todo extends CI_Controller
                                 todoMetaValue: todo_meta_value,
                             },
                             success: function(response) {
+                                // loadTodoPriority();
                                 datatableCallAjax();
                             },
                             error: function() {
@@ -709,6 +733,24 @@ class Todo extends CI_Controller
                 <td>There is no data</td>
             </tr>
 <?php }
+    }
+
+    public function updateTodoOnChange()
+    {
+        $id = $this->input->post('todoId');
+        $field = $this->input->post('todoField');
+        $value = $this->input->post('todoValue');
+        $succcess = $this->Todo_model->setValueField($id, $field, $value);
+        return $succcess;
+    }
+
+    public function updateTodoMetaOnChange()
+    {
+        $id = $this->input->post('todoMetaId');
+        $field = $this->input->post('todoMetaField');
+        $value = $this->input->post('todoMetaValue');
+        $succcess = $this->Todo_model->setValueFieldTodoMeta($id, $field, $value);
+        return $succcess;
     }
 
     // Code Update
@@ -738,7 +780,7 @@ class Todo extends CI_Controller
         //  Replace API
         $todo_metas = [];
         // lấy các mã code trong todo_meta đã distinct
-        $code = $this->Todo_model->getAllTodoMeta();
+        $code = $this->Todo_model->getAllCodeTodoMeta();
         $todo_empty = [];
         foreach ($code as $key => $item) {
             $todo_metas[$key] = $item['code'];
@@ -809,23 +851,5 @@ class Todo extends CI_Controller
         //     $data = $response['data'];
         //     echo json_encode($data);
         // }
-    }
-
-    public function updateTodoOnChange()
-    {
-        $id = $this->input->post('todoId');
-        $field = $this->input->post('todoField');
-        $value = $this->input->post('todoValue');
-        $succcess = $this->Todo_model->setValueField($id, $field, $value);
-        return $succcess;
-    }
-
-    public function updateTodoMetaOnChange()
-    {
-        $id = $this->input->post('todoMetaId');
-        $field = $this->input->post('todoMetaField');
-        $value = $this->input->post('todoMetaValue');
-        $succcess = $this->Todo_model->setValueFieldTodoMeta($id, $field, $value);
-        return $succcess;
     }
 }

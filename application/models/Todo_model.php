@@ -20,7 +20,7 @@ class Todo_model extends CI_Model
         return $this->db->get()->result_array();
     }
 
-    public function getAllTodoMeta()
+    public function getAllCodeTodoMeta()
     {
         $todo_meta = $this->db
             ->distinct()
