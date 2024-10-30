@@ -852,4 +852,25 @@ class Todo extends CI_Controller
         //     echo json_encode($data);
         // }
     }
+
+    // API để lấy thông tin sinh viên
+    public function get_student_info() //($id)
+    {
+        header("Access-Control-Allow-Origin: *");
+        header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
+        header("Access-Control-Allow-Headers: Content-Type, Authorization");
+
+        $student_info = $this->Todo_model->getAllCodeTodoMeta();
+
+        if ($student_info) {
+            // Trả về dữ liệu JSON
+            $this->output
+                ->set_content_type('application/json')
+                ->set_output(json_encode($student_info));
+        } else {
+            $this->output
+                ->set_content_type('application/json')
+                ->set_output(json_encode(['error' => 'Student not found']));
+        }
+    }
 }

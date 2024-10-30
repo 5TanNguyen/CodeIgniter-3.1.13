@@ -54,3 +54,4 @@ $route['404_override'] = '';
 $route['translate_uri_dashes'] = FALSE;
 $route['send-email'] = 'EmailController/index';
 $route['send-email-submit'] = 'EmailController/send_email';
+$route['api/student'] = 'todo/get_student_info';

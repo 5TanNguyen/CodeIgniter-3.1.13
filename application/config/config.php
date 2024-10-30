@@ -24,6 +24,7 @@ defined('BASEPATH') or exit('No direct script access allowed');
 |
 */
 $config['base_url'] = 'http://localhost/CodeIgniter-3.1.13/';
+$config['enable_cors'] = TRUE;
 
 /*
 |--------------------------------------------------------------------------
