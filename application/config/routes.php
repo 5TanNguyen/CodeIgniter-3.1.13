@@ -55,3 +55,6 @@ $route['translate_uri_dashes'] = FALSE;
 $route['send-email'] = 'EmailController/index';
 $route['send-email-submit'] = 'EmailController/send_email';
 $route['api/student'] = 'todo/get_student_info';
+$route['api/update_profile_picture'] = 'todo/update_profile_picture';
+$route['api/getAllTodoCalendar'] = 'todo/getAllTodoCalendar';
+$route['api/getAllTodoName'] = 'todo/getAllTodoName';

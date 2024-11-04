@@ -188,7 +188,7 @@ class Todo extends CI_Controller
         $_SESSION['lastname'] = $user[0]->lastname;
         $_SESSION['user_image'] = $user[0]->user_image;
 
-        $this->load->view('todo');
+        $this->load->view('todo/todo');
     }
 
     public function logout()
@@ -232,7 +232,7 @@ class Todo extends CI_Controller
             }
 
             $config['allowed_types'] = explode("|", 'jpg|jpeg|png|gif|pdf|svg|doc|docx|xls|xlsx|ppt|pptx|sheet|rar|zip');
-            $config['max_size'] = 50000;
+            // $config['max_size'] = 50000;
 
             $filename_explode =  explode(".", $originalFileName);
             $fileType = $filename_explode[count($filename_explode) - 1];
@@ -496,9 +496,10 @@ class Todo extends CI_Controller
 
         $user['lastname'] = $this->input->post('lastname');
 
-        $this->User_model->edit($user, $user_id);
+        $this->User_model->edit($user, 1);
 
         $_SESSION['user_image'] = $config['upload_path'] . $file_name_enc;
+        $_SESSION['image'] = $originalFileName;
         $_SESSION['lastname'] = $this->input->post('lastname');
         $_SESSION['firstname'] = $this->input->post('firstname');
 
@@ -860,7 +861,7 @@ class Todo extends CI_Controller
         header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
         header("Access-Control-Allow-Headers: Content-Type, Authorization");
 
-        $student_info = $this->Todo_model->getAllCodeTodoMeta();
+        $student_info = $this->User_model->getProfile(1);
 
         if ($student_info) {
             // Trả về dữ liệu JSON
@@ -871,6 +872,94 @@ class Todo extends CI_Controller
             $this->output
                 ->set_content_type('application/json')
                 ->set_output(json_encode(['error' => 'Student not found']));
+        }
+    }
+
+    public function update_profile_picture()
+    {
+        header("Access-Control-Allow-Origin: *");
+        header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
+        header("Access-Control-Allow-Headers: Content-Type, Authorization");
+
+        // $user_id = $_SESSION['user_id']; // Lấy ID người dùng từ session
+        $user_id = 1; // Lấy ID người dùng từ session
+
+        if (!empty($_FILES['image']['name'])) {
+            $originalFileName = $_FILES['image']['name'];
+
+            // Cấu hình upload
+            $config['upload_path'] = './uploads/profile_pictures/'; // Đường dẫn lưu file
+            $config['allowed_types'] = 'jpg|jpeg|png|gif'; // Các định dạng file cho phép
+            $config['max_size'] = 2048; // Kích thước tối đa 2MB
+
+            // Tạo thư mục nếu chưa tồn tại
+            if (!is_dir($config['upload_path'])) {
+                mkdir($config['upload_path'], 0755, true);
+            }
+
+            $this->load->library('upload', $config);
+
+            if ($this->upload->do_upload('image')) {
+                // File đã được upload thành công
+                $uploadData = $this->upload->data();
+                $filePath = $config['upload_path'] . $uploadData['file_name']; // Lưu đường dẫn file
+
+                // Cập nhật đường dẫn ảnh vào database
+                $this->User_model->update_user_image($user_id, $filePath);
+
+                echo json_encode(['success' => true, 'data' => $filePath]);
+            } else {
+                // Xử lý lỗi upload
+                echo json_encode(['success' => false, 'error' => $this->upload->display_errors()]);
+            }
+        } else {
+            echo json_encode(['success' => false, 'error' => 'No file was uploaded.']);
+        }
+    }
+
+    public function getAllTodoCalendar()
+    {
+        header("Access-Control-Allow-Origin: *");
+        header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
+        header("Access-Control-Allow-Headers: Content-Type, Authorization");
+
+        $todo = $this->Todo_model->getAll();
+
+        $todo_rn = [];
+        foreach ($todo as $td) {
+            $todo_rn[$td['date']] = [
+                'title' => $td['name'],
+                'description' => $td['description']
+            ];
+        }
+
+        if ($todo) {
+            echo json_encode(['success' => true, 'data' => $todo_rn]);
+        } else {
+            echo json_encode(['success' => false, 'error' => 'No todo.']);
+        }
+    }
+
+    public function getAllTodoName()
+    {
+        header("Access-Control-Allow-Origin: *");
+        header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
+        header("Access-Control-Allow-Headers: Content-Type, Authorization");
+
+        $todo = $this->Todo_model->getAll();
+
+        $todo_rn = [];
+        foreach ($todo as $key => $td) {
+            $todo_rn[] = [
+                'id' => $key + 1,
+                'task' => $td['name'],
+            ];
+        }
+
+        if ($todo) {
+            echo json_encode(['success' => true, 'data' => $todo_rn]);
+        } else {
+            echo json_encode(['success' => false, 'error' => 'No todo.']);
         }
     }
 }

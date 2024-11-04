@@ -70,7 +70,8 @@
                 <div class="containerr">
                     <?php echo form_open_multipart("todo/userUpdate", ['class' => 'row']) ?>
                     <div class="form-group col-sm-12 d-flex justify-content-center">
-                        <img src="<?php ($_SESSION['user_image']) ? base_url('todo/getImage?image=') . $_SESSION['user_image'] : '' ?>" alt="" width="100" height="100">
+                        <!-- <img src="<= base_url('todo/getImage?image=') . $_SESSION['user_image'] ?>" alt="" width="100" height="100"> -->
+                        <img src="<?= ($_SESSION['user_image']) ? base_url('todo/getImage?image=') . $_SESSION['user_image'] : '' ?>" alt="" width="100" height="100">
                         <!-- <input class="form-control" type="file" name="image" id=""> -->
                         <br>
                     </div>

@@ -62,6 +62,12 @@ class User_model extends CI_Model
         $this->db->select('*');
         $this->db->where(['id' => $userId]);
         $query = $this->db->get('users');
-        return $query->row();
+        return $query->row_array();
+    }
+
+    public function update_user_image($user_id, $image_path)
+    {
+        $this->db->where('id', $user_id);
+        return $this->db->update('users', ['image' => $image_path]);
     }
 }

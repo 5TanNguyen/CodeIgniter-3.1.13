@@ -10,7 +10,7 @@ class Todo_model extends CI_Model
     {
         $this->db->select('*');
         $this->db->from('todo');
-        return $this->db->get()->result();
+        return $this->db->get()->result_array();
     }
 
     public function getAllExcel()
