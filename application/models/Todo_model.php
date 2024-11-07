@@ -25,7 +25,7 @@ class Todo_model extends CI_Model
         $todo_meta = $this->db
             ->distinct()
             ->from('todo_meta')
-            ->select('code')
+            ->select('code, fieldname')
             ->get()
             ->result_array();
 
@@ -38,9 +38,9 @@ class Todo_model extends CI_Model
             $this->db
             ->from('todo')
             ->select('*')
-            ->where('priority', $priority)
             ->join('todo_meta', 'todo_meta.todo_id = todo.id', 'left')
-            ->get()->result()
+            ->where('priority', $priority)
+            ->get()->result_array()
             :
             $this->db
             ->select('*')

@@ -508,20 +508,22 @@ class Todo extends CI_Controller
 
     public function getTodoByPriority()
     {
-        $todo_metas = [];
 
         $code = $this->Todo_model->getAllCodeTodoMeta();
         $todo_empty = [];
+
+        // Cài đặt index code, tên cột cho todometa
+        $todo_metas = [];
+        $columnName = [];
         foreach ($code as $key => $item) {
             $todo_metas[$key] = $item['code'];
+            $columnName[$key] = $item['fieldname'];
         }
 
         $priority_id = $_GET['priority'];
         $todo = $this->Todo_model->getTodoPriority($priority_id);
 
         $todo_check = [];
-        $feildName = [];
-
         $statusArray = [
             1 => 'Chưa bắt đầu',
             2 => 'Đang làm',
@@ -534,6 +536,7 @@ class Todo extends CI_Controller
             3 => '#2ecc71',
         ];
         foreach ($todo as $key => $item) {
+            // Tạo dừng dòng dữ liệu todo
             $temp_id = $item['id'];
             if (!isset($todo_check[$temp_id])) {
                 $todo_check[$temp_id] = [
@@ -548,6 +551,7 @@ class Todo extends CI_Controller
                 ];
             }
 
+            // Set empty các todometa cho todo
             if (!in_array($temp_id, $todo_empty)) {
                 foreach ($code as $key => $cod) {
                     $todo_check[$temp_id]['fields'][$key] = [
@@ -563,22 +567,18 @@ class Todo extends CI_Controller
             }
 
 
+            // Lấy chỉ số code của todometa
             $code_index = array_search($item['code'], $todo_metas);
-
+            // Set các giá trị của todometa trong cột field
             $todo_check[$temp_id]['fields'][$code_index] = [
                 'todo_meta_id' => $item['todo_meta_id'],
                 'code' => $item['code'],
                 'fieldname' => $item['fieldname'],
                 'fieldvalue' => $item['fieldvalue']
             ];
-
-            if (!in_array($item['fieldname'], $feildName)) {
-                array_push($feildName, $item['fieldname']);
-            }
         }
 
         // dd($todo_check);
-
         if (!empty($todo_check)) { ?>
 
             <!-- Mở thẻ table -->
@@ -594,7 +594,7 @@ class Todo extends CI_Controller
                             <th>Priority</th>
                             <th>Status</th>
                             <th>Date</th>
-                            <?php foreach ($feildName as $todo_meta): ?>
+                            <?php foreach ($columnName as $todo_meta): ?>
                                 <th><?= $todo_meta ?></th>
                             <?php endforeach; ?>
                         </tr>
@@ -644,7 +644,9 @@ class Todo extends CI_Controller
 
                                 <!-- Hiển thị các fields của todo_meta -->
                                 <?php foreach ($item['fields'] as $val): ?>
+                                    <!-- <php if (!$val['fieldvalue']): ?> -->
                                     <td><input type="text" value="<?= $val['fieldvalue'] ?>" class="no-border todo_meta_input" data-id="<?= $val['todo_meta_id'] ?>" data-field="fieldvalue" style="width: 100px;"></td>
+                                    <!-- <php endif; ?> -->
                                 <?php endforeach; ?>
                             </tr>
                         <?php endforeach; ?>
@@ -694,7 +696,6 @@ class Todo extends CI_Controller
                                         $(this).css('background-color', statusArrayColor[newColor] || '#fff');
                                     });
                                 }
-
                                 // Thao tác status
                             },
                             error: function() {
@@ -859,7 +860,7 @@ class Todo extends CI_Controller
     {
         header("Access-Control-Allow-Origin: *");
         header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
-        header("Access-Control-Allow-Headers: Content-Type, Authorization");
+        header("Access-Control-Allow-Headers: Content-Type, Authorization, DHNCT-Authorization, DHNCT-API-KEY");
 
         $student_info = $this->User_model->getProfile(1);
 
