@@ -545,8 +545,8 @@ class Todo extends CI_Controller
                     'name' => $item['name'],
                     'description' => $item['description'],
                     'priority' => $item['priority'],
-                    'status' => $item['status'],
-                    'statusText' => $statusArray[$item['status']],
+                    'status' => $item['status'] ?? 1,
+                    'statusText' => $statusArray[$item['status'] ?? 1],
                     'date' => $item['date'],
                 ];
             }
@@ -561,11 +561,8 @@ class Todo extends CI_Controller
                         'fieldvalue' => ''
                     ];
                 }
-            }
-            if (!in_array($temp_id, $todo_empty)) {
                 array_push($todo_empty, $temp_id);
             }
-
 
             // Lấy chỉ số code của todometa
             $code_index = array_search($item['code'], $todo_metas);
@@ -589,7 +586,7 @@ class Todo extends CI_Controller
                         <tr>
                             <th>No</th>
                             <th>Image</th>
-                            <th style="position: sticky; left: 0; background-color: white; z-index: 10;">Name</th>
+                            <th style="position: sticky; left: 0; background-color: white; z-index: 2;">Name</th>
                             <th>Description</th>
                             <th>Priority</th>
                             <th>Status</th>
@@ -622,7 +619,7 @@ class Todo extends CI_Controller
                                     </div>
                                 </td>
 
-                                <td style="position: sticky; left: 0; background-color: white; z-index: 10;"><input type="text" value="<?= $item['name']; ?>" class="no-border todo_input" data-id="<?= $item['id'] ?>" data-field="name"></td>
+                                <td style="position: sticky; left: 0; background-color: white; z-index: 2;"><input type="text" value="<?= $item['name']; ?>" class="no-border todo_input" data-id="<?= $item['id'] ?>" data-field="name"></td>
                                 <td><input type="text" value="<?= $item['description']; ?>" class="no-border todo_input" data-id="<?= $item['id'] ?>" data-field="description"></td>
                                 <td>
                                     <select name="todo_input" class="todo_input form-control" data-id="<?= $item['id'] ?>" data-field="priority" data-status="<?= $item['id'] ?>">
