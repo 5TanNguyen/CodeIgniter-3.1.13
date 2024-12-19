@@ -224,4 +224,28 @@ class Todo_model extends CI_Model
             ->where('todo_meta_id', $id)
             ->update('todo_meta', $data);
     }
+
+    public function getChart()
+    {
+        $status1 = $this->db
+            ->from('todo')
+            ->where('status', 1)
+            ->count_all_results();
+
+        $status2 = $this->db
+            ->from('todo')
+            ->where('status', 2)
+            ->count_all_results();
+
+        $status3 = $this->db
+            ->from('todo')
+            ->where('status', 3)
+            ->count_all_results();
+
+        return [
+            'status_1' => $status1,
+            'status_2' => $status2,
+            'status_3' => $status3,
+        ];
+    }
 }
