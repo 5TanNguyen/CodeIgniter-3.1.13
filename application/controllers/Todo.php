@@ -852,6 +852,12 @@ class Todo extends CI_Controller
         // }
     }
 
+    public function loadChart()
+    {
+        $result = $this->Todo_model->getChart();
+        return $result;
+    }
+
     // API để lấy thông tin sinh viên
     public function get_student_info() //($id)
     {
